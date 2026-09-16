@@ -1,0 +1,1297 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Parts Desk">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23000'/%3E%3Ctext x='32' y='42' font-family='Impact,Arial Narrow,sans-serif' font-size='28' fill='%23e8eaea' text-anchor='middle' font-style='italic'%3EJPS%3C/text%3E%3Crect y='58' width='64' height='6' fill='%232BB3B1'/%3E%3C/svg%3E">
+<style>html{-webkit-text-size-adjust:100%}body{margin:0}img{max-width:100%}[hidden]{display:none!important}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+<title>JPS Parts Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&display=swap">
+<style>
+:root{
+  /* JPS Motorsports: black header band, white workspace, teal from the logo, chrome wordmark */
+  --ground:#F3F4F4; --surface:#FFFFFF; --surface-2:#F7F8F8; --raise:#EEF0F0; --ink:#0B0B0B; --muted:#5C6363; --faint:#8C9393;
+  --line:#E1E4E4; --line-strong:#C6CBCB; --accent:#2BB3B1; --accent-hi:#3EC7C4; --accent-dark:#12807E; --accent-ink:#00201F; --accent-soft:rgba(43,179,177,.12);
+  --band:#000000; --band-ink:#FAFAFA; --band-muted:#A9A9A9; --band-line:#252525;
+  --chrome:linear-gradient(180deg,#FFFFFF 0%,#E4E6E6 34%,#8A9090 50%,#D5D8D8 66%,#FFFFFF 84%,#AEB3B3 100%);
+  --s-order:#CF3A31; --s-order-bg:#FCE8E6;
+  --s-ordered:#B07212; --s-ordered-bg:#FBF0DC;
+  --s-await:#4A8F1C; --s-await-bg:#E9F4E0;
+  --s-recv:#12807E; --s-recv-bg:#DDF3F2;
+  --p-high:#CF3A31; --p-high-bg:#FCE8E6; --p-med:#B85F0F; --p-med-bg:#FCEBDA; --p-low:#5C6363; --p-low-bg:#ECEEEE;
+  --p-stock:#6B45C2; --p-stock-bg:#EFE9FB; --p-tools:#2263B8; --p-tools-bg:#E3EDFA; --p-list:#B02A74; --p-list-bg:#FAE4F0;
+  --ok:#1F9254; --shadow:0 1px 2px rgba(0,0,0,.04);
+  --display:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --body:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --brand:"Anton","Impact","Arial Narrow Bold",sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+select option{background:var(--surface);color:var(--ink)}
+body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.45;padding-inline:16px;padding-block:0 32px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent-dark);outline-offset:2px}
+.wrap{max-width:1440px;margin:0 auto}
+
+/* top bar */
+.band{background:var(--band);color:var(--band-ink);margin-inline:-16px;padding-inline:16px;margin-bottom:18px;border-bottom:3px solid var(--accent)}
+.band .btn.primary{border-color:var(--accent)}
+.band .brand p{color:var(--band-muted)}
+.wm{font-family:var(--brand);font-weight:400;font-size:34px;line-height:1;letter-spacing:.02em;text-transform:uppercase;background:var(--chrome);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
+.hdr-right{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.sync{background:none;border:0;color:var(--band-muted);font-size:12px;display:inline-flex;align-items:center;gap:7px;padding:4px 0}
+.sync:hover{color:var(--band-ink)}
+.sync .sdot{width:7px;height:7px;border-radius:50%;background:var(--band-muted)}
+.sync:has(#sync[data-state="ok"]) .sdot{background:var(--accent)}
+.sync:has(#sync[data-state="err"]) .sdot{background:var(--s-order)}
+.divider{width:1px;align-self:stretch;background:var(--band-line)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:18px 14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:16px;min-width:0;flex-wrap:wrap}
+.brand h1{margin:0;font-family:var(--display);font-weight:500;font-size:19px;line-height:1.1;letter-spacing:0;color:var(--band-ink)}
+.brand p{margin:2px 0 0;color:var(--muted);font-size:12.5px}
+.btn{border:1px solid var(--ink);background:transparent;border-radius:0;padding:8px 13px;font-weight:500;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{background:var(--ink);color:var(--ground)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.primary:hover{background:var(--accent-hi);border-color:var(--accent-hi);color:var(--accent-ink)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--ink);background:var(--surface-2)}
+.btn.danger:hover{background:var(--s-order-bg);color:var(--s-order)}
+.btn.danger{color:var(--s-order);border-color:transparent;background:transparent}
+.btn.danger.armed{background:var(--s-order);color:#fff;border-color:var(--s-order)}
+.btn.sm{padding:4px 9px;font-size:12.5px}
+
+/* status strip */
+.strip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:0;overflow:hidden;margin-bottom:14px}
+.stat{background:var(--surface);border:0;text-align:left;padding:10px 14px 11px;display:flex;flex-direction:column;gap:2px;position:relative}
+.stat:hover{background:var(--surface-2)}
+.stat .n{font-family:var(--display);font-weight:300;font-size:32px;line-height:1;font-variant-numeric:tabular-nums}
+.stat .l{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px}
+.stat .dot{width:8px;height:8px;border-radius:50%;background:var(--c,var(--faint))}
+.stat[data-view][aria-pressed="true"]{background:var(--s-recv-bg)}
+.stat[aria-pressed="true"]{background:var(--surface-2)}
+.stat[aria-pressed="true"]::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--c,var(--accent))}
+.stat.money .n{color:var(--muted)}
+
+/* toolbar */
+.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.search{flex:1 1 240px;position:relative;min-width:0}
+.search input{width:100%;padding:8px 12px 8px 34px;border:1px solid var(--line-strong);border-radius:0;background:var(--surface)}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--faint)}
+.tools select{padding:8px 28px 8px 10px;border:1px solid var(--line-strong);border-radius:0;background:var(--surface);max-width:190px}
+.seg{display:inline-flex;border:1px solid var(--line-strong);border-radius:0;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:transparent;padding:7px 12px;font-weight:500;color:var(--muted);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+.seg{border-color:var(--ink)}
+.clear{color:var(--accent-dark);background:none;border:0;font-weight:500;padding:6px}
+
+/* pills */
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:600;letter-spacing:.02em;white-space:nowrap;line-height:1.5}
+.pill.s{background:var(--sb);color:var(--sc)}
+.pill.s::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill.p{background:var(--pb);color:var(--pc);text-transform:uppercase;font-size:10.5px;letter-spacing:.05em}
+.sup{display:inline-block;color:var(--ink);background:var(--raise);font-family:var(--display);font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line-strong);border-radius:0;padding:0 6px;line-height:1.5;white-space:nowrap}
+.flag{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;color:var(--faint);white-space:nowrap}
+.flag.on{color:var(--ok);font-weight:600}
+.flag svg{flex:none}
+
+/* board */
+.board{display:grid;grid-template-columns:repeat(4,minmax(260px,1fr));gap:12px;overflow-x:auto;padding-bottom:8px;align-items:start}
+.col{background:var(--surface-2);border:1px solid var(--line);border-radius:0;display:flex;flex-direction:column;min-height:120px}
+.col.over{outline:2px dashed var(--accent);outline-offset:-2px}
+.col-h{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--line);position:sticky;top:0}
+.col-h h2{margin:0;font-family:var(--display);font-weight:500;font-size:14px;letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:8px;color:var(--sc)}
+.col-h h2::before{content:"";width:10px;height:10px;border-radius:2px;background:var(--sc)}
+.col-h .cnt{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.cards{display:flex;flex-direction:column;gap:8px;padding:10px}
+.archlink{border:1px dashed var(--line-strong);background:transparent;padding:9px;font-size:12.5px;color:var(--accent-dark);font-weight:500;text-align:center}
+.archlink:hover{border-color:var(--accent);background:var(--accent-soft)}
+.empty-col{color:var(--faint);font-size:12.5px;padding:10px 4px;text-align:center}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:0;padding:10px 11px;text-align:left;display:flex;flex-direction:column;gap:7px;cursor:pointer;box-shadow:var(--shadow);width:100%}
+.card:hover{border-color:var(--accent)}
+.card.dragging{opacity:.45}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.who{font-weight:600;font-size:14px;line-height:1.25}
+.who .veh{font-weight:400;color:var(--muted)}
+.who.none{color:var(--faint);font-weight:500;font-style:italic}
+.parts{font-size:12.5px;color:var(--muted);white-space:pre-line;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.card-meta{display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap}
+.card-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px dashed var(--line);padding-top:7px}
+.eta{font-family:var(--mono);font-size:11.5px;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:0;padding:0 5px;text-transform:uppercase}
+.trk{font-family:var(--mono);font-size:11.5px;color:var(--accent-dark);text-decoration:none;display:inline-flex;align-items:center;gap:4px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trk:hover{text-decoration:underline}
+.trk.plain{color:var(--muted)}
+.note{font-size:12px;color:var(--s-ordered);display:flex;gap:5px;align-items:flex-start;overflow-wrap:anywhere}
+.adv{border:1px solid var(--line);background:var(--surface-2);border-radius:0;padding:2px 7px;font-size:11.5px;color:var(--muted);white-space:nowrap}
+.adv:hover{color:var(--ink);border-color:var(--line-strong)}
+
+/* list */
+.tablewrap{background:var(--surface);border:1px solid var(--line);border-radius:0;overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:1080px}
+th{font-family:var(--display);font-weight:500;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:left;padding:9px 10px;border-bottom:1px solid var(--line-strong);background:var(--surface-2);position:sticky;top:0;white-space:nowrap}
+th button{background:none;border:0;padding:0;font:inherit;color:inherit;letter-spacing:inherit;text-transform:inherit;display:inline-flex;gap:4px;align-items:center}
+th button:hover{color:var(--ink)}
+.nowrap{white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:var(--surface-2)}
+td.c{text-align:center}
+td .parts{-webkit-line-clamp:2;max-width:360px;color:var(--ink)}
+td .note{max-width:200px}
+.tick{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line-strong);background:transparent;display:inline-grid;place-items:center;padding:0;color:transparent}
+.tick[aria-checked="true"]{background:var(--ok);border-color:var(--ok);color:#fff}
+.tick:hover{border-color:var(--ok)}
+.st-sel{border:0;border-radius:999px;padding:2px 8px;font-size:11.5px;font-weight:600;background:var(--sb);color:var(--sc);appearance:none;-webkit-appearance:none;cursor:pointer}
+
+/* supplier run */
+.runs{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;align-items:start}
+.run{background:var(--surface);border:1px solid var(--line);border-radius:0;overflow:hidden}
+.run-h{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.run-h h3{margin:0;font-family:var(--display);font-size:16px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;line-height:1.1}
+.run-h small{color:var(--muted);font-size:12px}
+.run-i{padding:9px 12px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:4px;cursor:pointer}
+.run-i:last-child{border-bottom:0}
+.run-i:hover{background:var(--surface-2)}
+.run-i .parts{-webkit-line-clamp:4;color:var(--ink)}
+.run-i .row{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.hint{color:var(--muted);font-size:13px;margin:0 0 12px}
+
+.state{padding:48px 16px;text-align:center;color:var(--muted);background:var(--surface);border:1px dashed var(--line-strong);border-radius:0}
+.state strong{display:block;color:var(--ink);font-size:15px;margin-bottom:4px}
+
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);background:var(--surface);border-left:1px solid var(--line-strong);z-index:21;display:flex;flex-direction:column;box-shadow:-10px 0 30px rgba(0,0,0,.18);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.dr-h{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);gap:8px}
+.dr-h h2{margin:0;font-family:var(--display);font-size:22px;font-weight:500;letter-spacing:0}
+.dr-b{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:14px}
+.dr-f{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 18px;border-top:1px solid var(--line);background:var(--surface-2)}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field>label,.field>.lbl{font-size:11.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.field input[type=text],.field select,.field textarea{width:100%;border:1px solid var(--line-strong);border-radius:0;padding:8px 10px;background:var(--surface)}
+.field textarea{resize:vertical;min-height:120px;line-height:1.5}
+.field textarea.mono,.field input.mono{font-family:var(--mono);font-size:12.5px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.statuses{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.statuses button{border:1px solid var(--line-strong);background:var(--surface);border-radius:0;padding:7px 4px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.statuses button[aria-pressed="true"]{background:var(--sb);color:var(--sc);border-color:var(--sc)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;border:1px solid var(--line-strong);border-radius:0;padding:6px;background:var(--surface)}
+.chips .sup{display:inline-flex;align-items:center;gap:4px;padding-right:2px}
+.chips .sup button{border:0;background:none;color:var(--muted);padding:0 3px;font-size:14px;line-height:1}
+.field .chips input[type=text]{border:0;outline:0;border-radius:0;flex:1 1 120px;min-width:100px;padding:3px 4px;background:transparent}
+.checks{display:flex;gap:18px;flex-wrap:wrap}
+.check{display:flex;align-items:center;gap:8px;font-weight:500}
+.check input{width:18px;height:18px;accent-color:var(--ok)}
+.stamp{font-size:12px;color:var(--faint);font-family:var(--mono)}
+.types{display:flex;gap:2px;margin-bottom:12px;overflow-x:auto;border-bottom:1px solid var(--line-strong)}
+.types button{border:0;background:none;padding:10px 14px 11px;font-family:var(--display);font-weight:500;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1px;white-space:nowrap;display:inline-flex;gap:7px;align-items:center}
+.types button:hover{color:var(--ink)}
+.types button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--tc,var(--accent))}
+.types .c{font-family:var(--mono);font-size:11px;font-weight:500;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:0 7px;letter-spacing:0;color:var(--muted)}
+.tags{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.muted{color:var(--faint);font-size:12.5px}
+.typeseg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.typeseg button{border:1px solid var(--line-strong);background:var(--surface);border-radius:0;padding:7px 4px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.typeseg button[aria-pressed="true"]{background:var(--pb,var(--ink));color:var(--pc,var(--ground));border-color:var(--pc,var(--ink))}
+.suphint{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.suphint b{color:var(--ink)}
+.addrow{display:flex;gap:8px}
+.addrow input{flex:1;min-width:0}
+.suprows{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:0;overflow:hidden}
+.suprow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;border-bottom:1px solid var(--line)}
+.suprow:last-child{border-bottom:0}
+.suprow .uses{font-family:var(--mono);font-size:11.5px;color:var(--faint);margin-left:8px}
+.x{border:0;background:none;color:var(--muted);font-size:22px;line-height:1;padding:4px 8px;border-radius:0}
+.x:hover{background:var(--surface-2);color:var(--ink)}
+
+
+/* part lines */
+.drawer.wide{width:min(780px,100%)}
+.lhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+#dCustomer,#dVehicle,.lsup,#bulkSup,#ceName,#ceVeh{text-transform:uppercase}
+#dCustomer::placeholder,#dVehicle::placeholder,.lsup::placeholder,#bulkSup::placeholder,#ceVeh::placeholder{text-transform:none}
+.lhead .lbl{font-size:11.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.lhead .muted{text-transform:none;letter-spacing:0;font-weight:400}
+.lactions{display:flex;gap:12px}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent-dark);font-weight:500;font-size:12.5px;text-decoration:underline;text-underline-offset:2px}
+.linkbtn:hover{color:var(--ink)}
+.lines{display:flex;flex-direction:column;gap:6px}
+.lrow{display:grid;grid-template-columns:82px 54px 130px minmax(0,1fr) 150px 26px;gap:6px;align-items:center}
+.lcap{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.field .lrow input{width:100%;min-width:0;border:1px solid var(--line-strong);padding:6px 8px;background:var(--surface);font-size:13px}
+.field .lrow input.mono{font-family:var(--mono);font-size:12px}
+.field .lrow input.newsup{border-color:var(--accent);background:var(--accent-soft)}
+.lstat{border:1px solid var(--sc);background:var(--sb);color:var(--sc);font-size:11.5px;font-weight:600;padding:6px 4px;white-space:nowrap}
+.lrm{border:0;background:none;color:var(--faint);font-size:18px;line-height:1;padding:4px}
+.lrm:hover{color:var(--s-order)}
+.laddrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px}
+.setsup{display:inline-flex;gap:6px;align-items:center;margin-left:auto;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.field .setsup input[type=text]{border:1px solid var(--line-strong);padding:4px 8px;width:150px;background:var(--surface)}
+.setsup label{white-space:nowrap}
+.pastebox{display:flex;flex-direction:column;gap:6px;align-items:flex-start;margin-top:6px}
+.pastebox textarea{width:100%;border:1px solid var(--line-strong);padding:8px 10px;font:inherit;min-height:100px;background:var(--surface)}
+.splitbox.mixed{background:var(--s-ordered-bg);border-left-color:var(--s-ordered)}
+.splitbox{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:8px;padding:10px 12px;background:var(--accent-soft);border-left:3px solid var(--accent);font-size:13px}
+.orig{margin-top:8px;border:1px solid var(--line);background:var(--surface-2);padding:6px 10px}
+.orig summary{cursor:pointer;font-size:12.5px;color:var(--muted)}
+.orig pre{white-space:pre-wrap;font-family:var(--body);font-size:12.5px;margin:8px 0;color:var(--ink);overflow-wrap:anywhere}
+.hintline{font-size:12px;color:var(--muted);min-height:0}
+.hintline a{color:var(--accent-dark)}
+.vchips{display:flex;gap:4px;flex-wrap:wrap}
+.vchips:empty{display:none}
+.vchip{border:1px solid var(--line-strong);background:var(--surface);font-size:11.5px;padding:2px 8px;letter-spacing:.04em}
+.vchip.on,.vchip:hover{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.field input[type=date]{border:1px solid var(--line-strong);padding:7px 8px;background:var(--surface);flex:1;min-width:0}
+/* card line preview */
+.lines-mini{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px}
+.lines-mini li{display:flex;align-items:baseline;gap:6px;font-size:12.5px;min-width:0}
+.lines-mini .ltxt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+.lines-mini .more{color:var(--faint);padding-left:13px}
+.ldot{width:7px;height:7px;border-radius:50%;background:var(--sc);flex:none;transform:translateY(-1px)}
+.pn{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
+.prog{display:flex;height:4px;background:var(--raise);overflow:hidden}
+.prog span{display:block;height:100%}
+.progl{font-size:11px;color:var(--faint);margin-top:-3px}
+.eta.late{background:var(--s-order);border-color:var(--s-order);color:#fff}
+.eta.today{background:var(--s-ordered-bg);border-color:var(--s-ordered);color:var(--s-ordered)}
+.eta.old{color:var(--faint);background:transparent}
+.card.due{border-left:3px solid var(--s-order)}
+tr.due td:first-child{box-shadow:inset 3px 0 0 var(--s-order)}
+.stat.alert .n{color:var(--s-order)}
+.adv.split{border-color:var(--accent);color:var(--accent-dark);background:var(--accent-soft)}
+/* to order */
+.banner{background:var(--p-list-bg);border-left:3px solid var(--p-list);padding:10px 12px;margin-bottom:12px;font-size:13px;display:flex;gap:8px 12px;flex-wrap:wrap;align-items:center}
+.run-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.run-note{padding:8px 12px;font-size:12.5px;color:var(--muted);border-bottom:1px solid var(--line)}
+.run-i .rl{font-weight:500;overflow-wrap:anywhere}
+.run-i .row.sub{font-size:12px;color:var(--muted)}
+/* filters & panels */
+.chipf{border:1px solid var(--accent);background:var(--accent-soft);color:var(--ink);padding:7px 10px;font-size:13px}
+.chipf:hover{background:var(--accent);color:var(--accent-ink)}
+.cinfo{display:flex;flex-direction:column;gap:3px;min-width:0}
+.vlist{display:flex;gap:4px;flex-wrap:wrap}
+.cbtns{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.suprow.cedit{flex-direction:column;align-items:stretch;background:var(--surface-2)}
+.cfields{display:flex;flex-direction:column;gap:6px}
+.cfields input,.cfields select{border:1px solid var(--line-strong);padding:6px 8px;background:var(--surface);width:100%}
+
+
+.toast{border-left:4px solid var(--accent);position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--ground);padding:9px 16px;border-radius:0;font-weight:500;z-index:30;box-shadow:var(--shadow)}
+
+@media (max-width:1100px){
+  .strip{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media (max-width:900px){
+  .strip{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .lrow{grid-template-columns:78px 52px 1fr 26px;grid-template-areas:"st q pn rm" "d d d d" "s s s s"}
+  .lrow .lstat{grid-area:st}.lrow .lqty{grid-area:q}.lrow .lpn{grid-area:pn}.lrow .ldesc{grid-area:d}.lrow .lsup{grid-area:s}.lrow .lrm{grid-area:rm}
+  .lcap{display:none!important}
+  .lrow{padding-bottom:8px;border-bottom:1px dashed var(--line)}
+}
+@media (max-width:560px){
+  .wm{font-size:26px}
+  .divider{display:none}
+  .typeseg{grid-template-columns:repeat(2,1fr)}
+  .brand h1{font-size:22px}
+  .strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stat .n{font-size:26px}
+  .tools select{flex:1 1 40%;max-width:none}
+  .two{grid-template-columns:1fr}
+  .statuses{grid-template-columns:repeat(2,1fr)}
+  .board{grid-template-columns:repeat(4,minmax(82vw,1fr))}
+}
+@media (prefers-reduced-motion:no-preference){
+  .drawer{animation:slide .18s ease-out}
+  @keyframes slide{from{transform:translateX(24px);opacity:.6}to{transform:none;opacity:1}}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+</head>
+<body>
+
+
+<div class="band"><div class="wrap"><header class="top">
+    <div class="brand">
+      <span class="wm">JPS Motorsports</span>
+      <span class="divider" aria-hidden="true"></span>
+      <div>
+        <h1>Parts Desk</h1>
+        <p>Parts ordering &amp; tracking · Workshop</p>
+      </div>
+    </div>
+    <div class="hdr-right">
+    <button type="button" class="sync" id="syncBtn" title="Refresh now"><span class="sdot"></span><span id="sync">Connecting…</span></button>
+    <button class="btn primary" id="newBtn" type="button">
+      <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      New order
+    </button>
+    </div>
+  </header></div></div>
+<div class="wrap">
+
+  <nav class="types" id="types" aria-label="Order type"></nav>
+
+  <nav class="strip" id="strip" aria-label="Filter by status"></nav>
+
+  <div class="tools">
+    <div class="search">
+      <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <input id="q" type="search" placeholder="Search all orders, including the archive…" autocomplete="off">
+    </div>
+    <select id="fPriority" aria-label="Priority"></select>
+    <select id="fSupplier" aria-label="Supplier"></select>
+    <button class="clear" id="clearBtn" type="button" hidden>Clear filters</button>
+    <button class="chipf" id="custChip" type="button" hidden></button>
+    <button class="btn" id="custBtn" type="button">Customers</button>
+    <button class="btn" id="supBtn" type="button">Suppliers</button>
+    <div class="seg" role="group" aria-label="View">
+      <button type="button" data-view="board" aria-pressed="true">Board</button>
+      <button type="button" data-view="list" aria-pressed="false">List</button>
+      <button type="button" data-view="runs" aria-pressed="false">To order</button>
+      <button type="button" data-view="archive" aria-pressed="false">Archive</button>
+    </div>
+  </div>
+
+  <main id="main"></main>
+</div>
+
+<div id="drawerRoot"></div>
+<div id="toastRoot"></div>
+
+<script>
+(() => {
+const STATUSES = ["To be Ordered","Ordered","Awaiting Parts","Received"];
+const SKEY = {"To be Ordered":"order","Ordered":"ordered","Awaiting Parts":"await","Received":"recv"};
+const PRIORITIES = ["High","Medium","Low"];
+const PKEY = {"High":"high","Medium":"med","Low":"low"};
+const TYPES = [["customer","Customer orders","Customer order"],["stock","Stock","Stock"],["tools","Tools","Tools"],["list","Parts lists","Parts list to action"]];
+const LSTAT = ["pending","ordered","received"];
+const LLABEL = {pending:"To order", ordered:"Ordered", received:"Received"};
+const LKEY = {pending:"order", ordered:"ordered", received:"recv"};
+const TRANK = k => { const i = TYPES.findIndex(t => t[0] === k); return i < 0 ? 0 : i; };
+const PRANK = p => { const i = PRIORITIES.indexOf(p); return i < 0 ? 99 : i; };
+function typeOf(o){ return (o && o.type) || "customer"; }
+function typeLabel(k){ return (TYPES.find(t => t[0] === k) || TYPES[0])[2]; }
+function tVars(k){ return k === "customer" ? "" : `--pc:var(--p-${k});--pb:var(--p-${k}-bg);--tc:var(--p-${k})`; }
+function typePill(o){ const k = typeOf(o); if (k === "customer") return ""; return `<span class="pill p" style="${tVars(k)}">${esc(typeLabel(k))}</span>`; }
+
+const state = {
+  orders: [], customers: [], supList: [], loaded: false, error: null,
+  view: (store("view") === "archive" ? "board" : store("view")) || "board",
+  status: null, flag: null, type: "", q: "", priority: "", supplier: "", customerId: "",
+  sort: {key:"status", dir:1},
+  editing: null, panel: null, panelFilter: "",
+};
+
+/* ---------- Supabase (via the viewer's Supabase connector) ---------- */
+const SB_URL = "https://reiiivwmumgqtpyfmyja.supabase.co";
+const SB_KEY = "sb_publishable_umEpFaNCkYfnGNsjlJFfQg_oroj0526"; // public by design; access is enforced in the database
+const sb = window.supabase && window.supabase.createClient ? window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } }) : null;
+let mcp = null, pending = 0, pollT = null, loading = false; // mcp = ready client
+function toErr(error){
+  const msg = String((error && (error.message || error.error_description)) || "");
+  let code = "tool_error";
+  if (error && error.code === "42501") code = "not_staff";
+  else if (/jwt|not authenticated|permission denied for function|PGRST30/i.test(msg + " " + (error && error.code))) code = "needs_login";
+  else if (/failed to fetch|networkerror|load failed|timeout/i.test(msg)) code = "server_unavailable";
+  return {code, message: msg};
+}
+async function rpc(fn, args){
+  if (!mcp) throw {code:"needs_login"};
+  const {data, error} = await sb.rpc(fn, args || {});
+  if (error) throw toErr(error);
+  return data;
+}
+
+function store(k, v){ try{ if(v===undefined) return localStorage.getItem("jps."+k); localStorage.setItem("jps."+k, v);}catch(e){ return null; } }
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const norm = s => String(s ?? "").trim();
+const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
+const icoCheck = '<svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const icoBox = '<svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 5l6-3 6 3v6l-6 3-6-3z M2 5l6 3 6-3 M8 8v6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
+const icoNote = '<svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true" style="margin-top:2px;flex:none"><path d="M3 3h10v7H7l-3 3v-3H3z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
+
+function sVars(s){ const k = SKEY[s] || "order"; return `--sc:var(--s-${k});--sb:var(--s-${k}-bg)`; }
+function lVars(s){ const k = LKEY[s] || "order"; return `--sc:var(--s-${k});--sb:var(--s-${k}-bg)`; }
+function pVars(p){ const k = PKEY[p] || "low"; return `--pc:var(--p-${k});--pb:var(--p-${k}-bg)`; }
+function prioPill(p){ if(!p || !PKEY[p]) return ""; return `<span class="pill p" style="${pVars(p)}">${esc(p)}</span>`; }
+function archPill(o){ if (o.status !== "Received") return ""; return `<span class="pill p" style="--pc:var(--s-recv);--pb:var(--s-recv-bg)">${isArchived(o) ? "Archived" : "Just received"}</span>`; }
+function tags(o){ return `<span class="tags">${archPill(o)}${typePill(o)}${prioPill(o.priority)}</span>`; }
+function supTags(arr){ return (arr||[]).map(s => `<span class="sup">${esc(s)}</span>`).join(" "); }
+
+/* ---------- order helpers ---------- */
+function linesOf(o){ return Array.isArray(o.lines) ? o.lines : []; }
+function orderSuppliers(o){
+  const s = new Set(o.supplier || []);
+  linesOf(o).forEach(l => { if (norm(l.supplier)) s.add(l.supplier); });
+  return [...s].sort((a,b) => a.localeCompare(b));
+}
+function lineText(l){
+  const q = Number(l.qty) || 1;
+  return `${q !== 1 ? q + " × " : ""}${norm(l.description) || norm(l.part_no) || "Part"}`;
+}
+function partsSummary(o){
+  const ls = linesOf(o);
+  return ls.length ? ls.map(lineText).join("\n") : norm(o.parts);
+}
+function counts(o){
+  const c = {n:0, pending:0, ordered:0, received:0};
+  linesOf(o).forEach(l => { c.n++; c[l.status] = (c[l.status]||0) + 1; });
+  return c;
+}
+function cascadeLines(lines, status){
+  const to = status === "To be Ordered" ? "pending" : status === "Received" ? "received" : "ordered";
+  return lines.map(l => ({...l, status: to}));
+}
+const todayStr = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; };
+function dayDiff(iso){
+  const [y,m,d] = iso.split("-").map(Number);
+  const a = new Date(y, m-1, d), t = new Date(); t.setHours(0,0,0,0);
+  return Math.round((a - t) / 86400000);
+}
+function fmtDay(iso){
+  const [y,m,d] = iso.split("-").map(Number);
+  return new Date(y, m-1, d).toLocaleDateString("en-AU", {weekday:"short", day:"numeric", month:"short"});
+}
+function etaInfo(o){
+  if (!o.etaDate) return null;
+  const diff = dayDiff(o.etaDate), done = o.status === "Received";
+  let cls = "", word = "";
+  if (!done && diff < 0){ cls = "late"; word = diff === -1 ? "1 day late" : `${-diff} days late`; }
+  else if (!done && diff === 0){ cls = "today"; word = "Due today"; }
+  else if (!done && diff === 1){ word = "Tomorrow"; }
+  return {cls, word, label: fmtDay(o.etaDate), diff};
+}
+function isDue(o){ const e = etaInfo(o); return !!(e && o.status !== "Received" && e.diff <= 0); }
+function etaChip(o){
+  const e = etaInfo(o);
+  if (e) return `<span class="eta ${e.cls}" title="Expected ${esc(e.label)}">${e.word ? esc(e.word) + " · " : "ETA "}${esc(e.label)}</span>`;
+  if (norm(o.eta)) return `<span class="eta old" title="Old ETA note">ETA ${esc(o.eta)}</span>`;
+  return "";
+}
+
+function carrier(t){
+  const u = norm(t).toLowerCase();
+  const map = [["auspost","AusPost"],["ap:","AusPost"],["dhl","DHL"],["fedex","FedEx"],["tnt.com","TNT"],["bigpost","BigPost"],["fgmail","Fastway NZ"],["chemcouriers","Chem Couriers"],["directfreight","Direct Freight"],["trackmyparcel","Couriers Please"],["open360","Open360"],["startrack","StarTrack"],["aramex","Aramex"],["couriersplease","Couriers Please"],["tollgroup","Toll"],["ups.com","UPS"]];
+  for (const [k,v] of map) if (u.includes(k)) return v;
+  if (/^https?:\/\//.test(u)) { try { return new URL(t).hostname.replace(/^www\./,""); } catch(e){ return "Tracking"; } }
+  return null;
+}
+function trackLink(t){
+  t = norm(t); if(!t) return "";
+  if (/^https?:\/\//i.test(t)) return `<a class="trk" href="${esc(t)}" target="_blank" rel="noopener" data-stop>${icoBox}${esc(carrier(t) || "Tracking")} ↗</a>`;
+  return `<span class="trk plain" title="${esc(t)}">${icoBox}${esc(t)}</span>`;
+}
+function customerLine(o){
+  const c = norm(o.customer), v = norm(o.vehicle);
+  if (!c && !v){ const k = typeOf(o); return `<div class="who none">${k === "stock" ? "Workshop stock" : k === "tools" ? "Workshop tools" : "No customer"}</div>`; }
+  return `<div class="who">${esc(c || "—")}${v ? ` <span class="veh">· ${esc(v)}</span>` : ""}</div>`;
+}
+function flags(o){
+  return `<span class="flag ${o.invoiced?"on":""}">${o.invoiced?icoCheck:"○"} Invoiced</span><span class="flag ${o.paid?"on":""}">${o.paid?icoCheck:"○"} Paid</span>`;
+}
+function customerById(id){ return state.customers.find(c => c.id === id) || null; }
+function customerByName(n){ n = norm(n).toLowerCase().replace(/\s+/g," "); return state.customers.find(c => c.name.toLowerCase() === n) || null; }
+
+/* ---------- filtering ---------- */
+const JUST_RECEIVED_MS = 24*60*60*1000;
+function isArchived(o){ return o.status === "Received" && !(o.receivedAt && Date.now() - o.receivedAt < JUST_RECEIVED_MS); }
+function flagOk(o){
+  if (state.flag === "uninvoiced" && o.invoiced) return false;
+  if (state.flag === "unpaid" && (o.paid || !o.invoiced)) return false;
+  if (state.flag === "due" && !isDue(o)) return false;
+  return true;
+}
+function matches(o){
+  if (!baseMatch(o)) return false;
+  if (!flagOk(o)) return false;
+  if (state.view === "archive") return o.status === "Received";
+  if (state.status && o.status !== state.status) return false;
+  // received orders drop off the desk after a day; search, chips and customer view still find them
+  if (isArchived(o) && !state.q && !state.flag && !state.customerId) return false;
+  return true;
+}
+function haystack(o){
+  if (o._hay) return o._hay;
+  const ls = linesOf(o).map(l => [l.part_no, l.description, l.supplier].join(" ")).join(" ");
+  return o._hay = [o.customer,o.vehicle,o.parts,o.comments,o.tracking,o.eta,o.etaDate,o.priority,o.status,typeLabel(typeOf(o)),(o.supplier||[]).join(" "),ls].join(" ").toLowerCase();
+}
+function baseMatch(o){
+  if (state.type && typeOf(o) !== state.type) return false;
+  if (state.customerId && o.customerId !== state.customerId) return false;
+  if (state.priority && (o.priority||"") !== (state.priority === "_none" ? "" : state.priority)) return false;
+  if (state.supplier && !orderSuppliers(o).includes(state.supplier)) return false;
+  if (state.q && !state.q.toLowerCase().split(/\s+/).filter(Boolean).every(w => haystack(o).includes(w))) return false;
+  return true;
+}
+function defaultSort(a,b){
+  return STATUSES.indexOf(a.status) - STATUSES.indexOf(b.status)
+    || PRANK(a.priority) - PRANK(b.priority)
+    || norm(a.customer).localeCompare(norm(b.customer))
+    || (b.createdAt||0) - (a.createdAt||0);
+}
+function etaRank(o){ return o.etaDate ? dayDiff(o.etaDate) : 9999; }
+function boardSort(a,b){ return (isDue(b) - isDue(a)) || TRANK(typeOf(a)) - TRANK(typeOf(b)) || PRANK(a.priority) - PRANK(b.priority) || etaRank(a) - etaRank(b) || (b.updatedAt||0) - (a.updatedAt||0); }
+
+/* ---------- render ---------- */
+function renderStrip(){
+  const n = {}; STATUSES.forEach(s => n[s] = 0);
+  const scoped = state.orders.filter(baseMatch);
+  scoped.forEach(o => { if (n[o.status] !== undefined) n[o.status]++; });
+  const due = scoped.filter(isDue).length;
+  const uninv = scoped.filter(o => !o.invoiced).length;
+  const unpaid = scoped.filter(o => o.invoiced && !o.paid).length;
+  const cells = STATUSES.filter(s => s !== "Received").map(s => `<button type="button" class="stat" data-status="${esc(s)}" aria-pressed="${state.status===s}" style="--c:var(--s-${SKEY[s]})"><span class="n">${n[s]}</span><span class="l"><span class="dot"></span>${esc(s)}</span></button>`);
+  cells.push(`<button type="button" class="stat" data-view="archive" aria-pressed="${state.view==="archive"}" style="--c:var(--s-recv)"><span class="n">${n["Received"]}</span><span class="l"><span class="dot"></span>Received · archive</span></button>`);
+  cells.push(`<button type="button" class="stat ${due ? "alert" : "money"}" data-flag="due" aria-pressed="${state.flag==="due"}" style="--c:var(--s-order)"><span class="n">${due}</span><span class="l">Due today / late</span></button>`);
+  cells.push(`<button type="button" class="stat money" data-flag="uninvoiced" aria-pressed="${state.flag==="uninvoiced"}" style="--c:var(--accent)"><span class="n">${uninv}</span><span class="l">Not invoiced</span></button>`);
+  cells.push(`<button type="button" class="stat money" data-flag="unpaid" aria-pressed="${state.flag==="unpaid"}" style="--c:var(--accent)"><span class="n">${unpaid}</span><span class="l">Invoiced, unpaid</span></button>`);
+  $("#strip").innerHTML = cells.join("");
+}
+function renderTypes(){
+  const t = state.type; state.type = "";
+  const scoped = state.orders.filter(o => matches(o));
+  state.type = t;
+  const tabs = [["", "All orders", ""]].concat(TYPES);
+  $("#types").innerHTML = tabs.map(([k,l]) => {
+    const n = k ? scoped.filter(o => typeOf(o) === k).length : scoped.length;
+    return `<button type="button" data-type="${k}" aria-pressed="${state.type===k}" style="${k?tVars(k):""}">${esc(l)}<span class="c">${n}</span></button>`;
+  }).join("");
+}
+function renderFilters(){
+  const pSel = $("#fPriority");
+  pSel.innerHTML = `<option value="">All priorities</option>` + PRIORITIES.map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join("") + `<option value="_none">No priority</option>`;
+  pSel.value = state.priority;
+  const used = new Set(); state.orders.forEach(o => orderSuppliers(o).forEach(s => used.add(s)));
+  const sSel = $("#fSupplier");
+  sSel.innerHTML = `<option value="">All suppliers</option>` + [...used].sort((a,b)=>a.localeCompare(b)).map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join("");
+  sSel.value = state.supplier;
+  const c = state.customerId ? customerById(state.customerId) : null;
+  $("#custChip").hidden = !c;
+  if (c) $("#custChip").innerHTML = `Customer: <b>${esc(c.name)}</b> <span aria-hidden="true">×</span>`;
+  $("#clearBtn").hidden = !(state.type || state.q || state.priority || state.supplier || state.status || state.flag || state.customerId);
+  document.querySelectorAll(".seg button, .stat[data-view]").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === state.view));
+}
+
+function linePreview(o, max){
+  const ls = linesOf(o);
+  if (!ls.length) return norm(o.parts) ? `<div class="parts">${esc(norm(o.parts))}</div>` : "";
+  const shown = ls.slice(0, max);
+  return `<ul class="lines-mini">${shown.map(l => `<li><span class="ldot" style="${lVars(l.status)}" title="${LLABEL[l.status]}"></span><span class="ltxt">${esc(lineText(l))}</span>${norm(l.part_no) ? `<span class="pn">${esc(l.part_no)}</span>` : ""}</li>`).join("")}${ls.length > max ? `<li class="more">+ ${ls.length - max} more</li>` : ""}</ul>`;
+}
+function progress(o){
+  const c = counts(o); if (c.n < 2) return "";
+  const pct = x => (x / c.n * 100).toFixed(1);
+  return `<div class="prog" title="${c.received} received, ${c.ordered} ordered, ${c.pending} to order"><span style="width:${pct(c.received)}%;background:var(--s-recv)"></span><span style="width:${pct(c.ordered)}%;background:var(--s-ordered)"></span></div><div class="progl">${c.received}/${c.n} received${c.pending ? ` · ${c.pending} to order` : ""}</div>`;
+}
+function cardHTML(o){
+  const next = STATUSES[STATUSES.indexOf(o.status)+1];
+  const nextLabel = {"Ordered":"Mark ordered","Awaiting Parts":"Awaiting parts","Received":"Mark received"}[next];
+  const sups = orderSuppliers(o);
+  const canSplit = splitGroups(o).length >= 2 || (typeOf(o) === "list" && splitGroups(o).length);
+  return `<article class="card ${isDue(o) ? "due" : ""}" draggable="true" data-id="${esc(o.id)}" tabindex="0" aria-label="Open order for ${esc(o.customer||"stock")}">
+    <div class="card-top">${customerLine(o)}${tags(o)}</div>
+    ${sups.length ? `<div class="card-meta">${supTags(sups)}</div>` : ""}
+    ${linePreview(o, 4)}
+    ${progress(o)}
+    ${norm(o.comments) ? `<div class="note">${icoNote}<span>${esc(norm(o.comments).split("\n").filter(Boolean)[0])}</span></div>` : ""}
+    ${(etaChip(o) || norm(o.tracking)) ? `<div class="card-meta">${etaChip(o)}${trackLink(o.tracking)}</div>` : ""}
+    <div class="card-foot"><div class="card-meta">${flags(o)}</div>${canSplit ? `<button type="button" class="adv split" data-open="${esc(o.id)}">Split by supplier</button>` : next ? `<button type="button" class="adv" data-advance="${esc(o.id)}" data-to="${esc(next)}">${esc(nextLabel)} →</button>` : ""}</div>
+  </article>`;
+}
+function renderBoard(list){
+  return `<div class="board">` + STATUSES.map(s => {
+    const items = list.filter(o => o.status === s).sort(boardSort);
+    const recv = s === "Received";
+    const archN = recv ? state.orders.filter(o => baseMatch(o) && isArchived(o)).length : 0;
+    const empty = recv ? `<div class="empty-col">Drop an order here when it arrives. It stays for a day, then moves to the archive.</div>` : `<div class="empty-col">Nothing here</div>`;
+    return `<section class="col" data-col="${esc(s)}" style="${sVars(s)}">
+      <div class="col-h"><h2>${esc(s)}</h2><span class="cnt">${items.length}</span></div>
+      <div class="cards">${items.length ? items.map(cardHTML).join("") : empty}
+      ${recv ? `<button type="button" class="archlink" data-view="archive">Open archive · ${plural(archN, "order")} →</button>` : ""}</div>
+    </section>`;
+  }).join("") + `</div>`;
+}
+
+const COLS = [
+  ["status","Status"],["type","Type"],["priority","Priority"],["customer","Customer"],["vehicle","Vehicle"],["supplier","Supplier"],
+  ["parts","Parts"],["eta","ETA"],["tracking","Tracking"],["comments","Comments"],["invoiced","Invoiced"],["paid","Paid"]
+];
+function sortVal(o,k){
+  if (k==="status") return STATUSES.indexOf(o.status);
+  if (k==="priority") return PRANK(o.priority);
+  if (k==="type") return TRANK(typeOf(o));
+  if (k==="eta") return o.etaDate || "￿";
+  if (k==="supplier") return orderSuppliers(o).join(", ").toLowerCase() || "￿";
+  if (k==="parts") return partsSummary(o).toLowerCase() || "￿";
+  if (k==="invoiced"||k==="paid") return o[k]?0:1;
+  return norm(o[k]).toLowerCase() || "￿";
+}
+function statusSelect(o){
+  return `<select class="st-sel" data-status-for="${esc(o.id)}" style="${sVars(o.status)}" aria-label="Status" data-stop>${STATUSES.map(s=>`<option ${s===o.status?"selected":""}>${esc(s)}</option>`).join("")}</select>`;
+}
+function ticks(o){
+  return `<td class="c"><button type="button" class="tick" role="checkbox" aria-checked="${!!o.invoiced}" aria-label="Invoiced" data-toggle="invoiced" data-id="${esc(o.id)}">${icoCheck}</button></td>
+    <td class="c"><button type="button" class="tick" role="checkbox" aria-checked="${!!o.paid}" aria-label="Paid" data-toggle="paid" data-id="${esc(o.id)}">${icoCheck}</button></td>`;
+}
+function partsCell(o){
+  const c = counts(o);
+  return `<div class="parts">${esc(partsSummary(o))}</div>${c.n > 1 ? `<div class="progl">${plural(c.n,"part")} · ${c.received} received</div>` : ""}`;
+}
+function renderList(list){
+  const {key,dir} = state.sort;
+  const rows = list.slice().sort((a,b) => {
+    const va = sortVal(a,key), vb = sortVal(b,key);
+    return (va<vb?-1:va>vb?1:0)*dir || defaultSort(a,b);
+  });
+  const head = COLS.map(([k,l]) => `<th${k==="invoiced"||k==="paid"?' style="text-align:center"':""}><button type="button" data-sort="${k}">${l}${key===k?(dir>0?" ↑":" ↓"):""}</button></th>`).join("");
+  const body = rows.map(o => `<tr data-id="${esc(o.id)}" class="${isDue(o) ? "due" : ""}">
+    <td>${statusSelect(o)}</td>
+    <td>${typePill(o) || `<span class="muted">Customer</span>`}</td>
+    <td>${prioPill(o.priority)}</td>
+    <td>${esc(o.customer)}</td>
+    <td>${esc(o.vehicle)}</td>
+    <td>${supTags(orderSuppliers(o))}</td>
+    <td>${partsCell(o)}</td>
+    <td class="nowrap">${etaChip(o)}</td>
+    <td>${trackLink(o.tracking)}</td>
+    <td>${norm(o.comments)?`<div class="note">${esc(norm(o.comments).split("\n").filter(Boolean)[0])}</div>`:""}</td>
+    ${ticks(o)}
+  </tr>`).join("");
+  return `<div class="tablewrap"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
+/* To order: every part still to order, grouped by its supplier */
+function openLines(list){
+  const out = [];
+  list.forEach(o => { if (o.status === "Received") return; linesOf(o).forEach(l => { if (l.status === "pending") out.push({o, l}); }); });
+  return out;
+}
+function renderRuns(list){
+  const rows = openLines(list);
+  const legacy = list.filter(o => o.status === "To be Ordered" && !linesOf(o).length);
+  const groups = new Map();
+  rows.forEach(r => { const k = norm(r.l.supplier) || "Supplier not set"; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(r); });
+  const names = [...groups.keys()].sort((a,b) => (a==="Supplier not set") - (b==="Supplier not set") || a.localeCompare(b));
+  const lists = list.filter(o => typeOf(o) === "list" && linesOf(o).some(l => l.status === "pending"));
+  if (!names.length && !legacy.length) return `<div class="state"><strong>Nothing waiting to be ordered</strong>Parts marked “To order” show up here, grouped by supplier.</div>`;
+  let html = `<p class="hint">Every part still to order, grouped by supplier. Copy a supplier’s list into an email or their website, then mark it ordered.</p>`;
+  if (lists.length) html += `<div class="banner"><b>${plural(lists.length, "parts list")} to action.</b> Open a list, pick a supplier for each part, then split it into supplier orders. ${lists.map(o => `<button type="button" class="linkbtn" data-open="${esc(o.id)}">${esc(o.customer || "Parts list")}${o.vehicle ? " · " + esc(o.vehicle) : ""}</button>`).join(" ")}</div>`;
+  html += `<div class="runs">` + names.map(n => {
+    const items = groups.get(n).sort((a,b) => PRANK(a.o.priority) - PRANK(b.o.priority) || norm(a.o.customer).localeCompare(norm(b.o.customer)));
+    const real = n !== "Supplier not set";
+    return `<section class="run">
+      <div class="run-h"><div><h3>${esc(n)}</h3><small>${plural(items.length, "part")} · ${plural(new Set(items.map(r => r.o.id)).size, "order")}</small></div>
+        ${real ? `<div class="run-actions"><button type="button" class="btn sm" data-copy="${esc(n)}">Copy list</button><button type="button" class="btn sm" data-orderall="${esc(n)}">Mark all ordered</button></div>` : ""}
+      </div>
+      ${!real ? `<div class="run-note">Open each order and choose a supplier for these parts.</div>` : ""}
+      ${items.map(({o,l}) => `<div class="run-i" data-id="${esc(o.id)}" tabindex="0">
+        <div class="row"><span class="rl">${esc(lineText(l))}</span>${norm(l.part_no) ? `<span class="pn">${esc(l.part_no)}</span>` : ""}</div>
+        <div class="row sub"><span>${esc(o.customer || (typeOf(o)==="stock" ? "Workshop stock" : typeOf(o)==="tools" ? "Workshop tools" : "No customer"))}${o.vehicle ? " · " + esc(o.vehicle) : ""}</span><span class="tags">${typePill(o)}${prioPill(o.priority)}</span></div>
+      </div>`).join("")}
+    </section>`;
+  }).join("");
+  if (legacy.length) html += `<section class="run"><div class="run-h"><div><h3>Orders without part lines</h3><small>${plural(legacy.length, "order")}</small></div></div>
+    ${legacy.map(o => `<div class="run-i" data-id="${esc(o.id)}" tabindex="0"><div class="row">${customerLine(o)}${tags(o)}</div>${norm(o.parts) ? `<div class="parts">${esc(norm(o.parts))}</div>` : `<div class="muted">No parts listed yet — open to add them.</div>`}</div>`).join("")}</section>`;
+  return html + `</div>`;
+}
+
+function fmtDate(t){ if(!t) return ""; try { return new Date(t).toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"}); } catch(e){ return ""; } }
+function renderArchive(list){
+  const rows = list.slice().sort((a,b) => (b.receivedAt||0) - (a.receivedAt||0) || (b.updatedAt||0) - (a.updatedAt||0));
+  const intro = `<p class="hint">Every received order, newest first. Search above to find a part number, customer or tracking number. To bring an order back onto the desk, change its status.</p>`;
+  if (!rows.length) return intro + noMatch();
+  const body = rows.map(o => `<tr data-id="${esc(o.id)}">
+    <td class="nowrap">${o.receivedAt ? esc(fmtDate(o.receivedAt)) : `<span class="muted">Before archive</span>`}</td>
+    <td>${esc(o.customer) || `<span class="muted">${typeOf(o)==="customer"?"—":esc(typeLabel(typeOf(o)))}</span>`}</td>
+    <td>${esc(o.vehicle)}</td>
+    <td>${supTags(orderSuppliers(o))}</td>
+    <td>${partsCell(o)}</td>
+    <td>${trackLink(o.tracking)}</td>
+    <td>${norm(o.comments)?`<div class="note">${esc(norm(o.comments).split("\n").filter(Boolean)[0])}</div>`:""}</td>
+    ${ticks(o)}
+    <td>${statusSelect(o)}</td>
+  </tr>`).join("");
+  return intro + `<div class="tablewrap"><table><thead><tr><th>Received</th><th>Customer</th><th>Vehicle</th><th>Supplier</th><th>Parts</th><th>Tracking</th><th>Comments</th><th style="text-align:center">Invoiced</th><th style="text-align:center">Paid</th><th>Status</th></tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
+function render(){
+  renderTypes(); renderStrip(); renderFilters();
+  const main = $("#main");
+  if (state.error && !state.loaded){ main.innerHTML = `<div class="state"><strong>Can’t reach the parts database</strong>${esc(state.error)}${state.errDetail ? `<div class="stamp" style="margin-top:8px">Details: ${esc(state.errDetail)}</div>` : ""}${mcp ? `<div style="margin-top:12px"><button type="button" class="btn" id="retryBtn">Try again</button></div>` : ""}</div>`; return; }
+  if (!state.loaded) return;
+  if (!state.orders.length){ main.innerHTML = `<div class="state"><strong>No orders yet</strong>Use “New order” to log the first one.</div>`; return; }
+  const list = state.orders.filter(o => matches(o));
+  const scrollX = main.querySelector(".board")?.scrollLeft || 0;
+  if (state.view === "list") main.innerHTML = list.length ? renderList(list) : noMatch();
+  else if (state.view === "runs") main.innerHTML = renderRuns(list);
+  else if (state.view === "archive") main.innerHTML = renderArchive(list);
+  else { main.innerHTML = renderBoard(list); const b = main.querySelector(".board"); if (b) b.scrollLeft = scrollX; }
+}
+function noMatch(){ return `<div class="state"><strong>No orders match</strong>Try a different search or clear the filters.</div>`; }
+
+/* ---------- writes ---------- */
+function toast(msg){
+  const r = $("#toastRoot"); r.innerHTML = `<div class="toast" role="status">${esc(msg)}</div>`;
+  clearTimeout(toast.t); toast.t = setTimeout(() => r.innerHTML = "", 2600);
+}
+function stampReceived(o, status){
+  if (status === o.status) return {};
+  return {status, receivedAt: status === "Received" ? Date.now() : null, lines: cascadeLines(linesOf(o), status)};
+}
+async function patch(id, fields, msg){
+  if (!mcp) return;
+  const i = state.orders.findIndex(o => o.id === id);
+  if (i < 0) return;
+  const prev = state.orders[i];
+  const local = "status" in fields ? {...fields, ...stampReceived(prev, fields.status)} : fields;
+  if (fields.status === "Received" && msg) msg = "Received — it moves to the archive after a day";
+  state.orders[i] = {...prev, ...local, _hay: null}; render();
+  pending++;
+  try { await rpc("parts_app_save", {p: {id, ...fields}}); if (msg) toast(msg); }
+  catch(e){ const j = state.orders.findIndex(o => o.id === id); if (j >= 0){ state.orders[j] = prev; render(); } toast(errText(e)); }
+  finally { pending--; if (!pending) load(); }
+}
+async function run(fn, args, okMsg){
+  pending++;
+  try { const r = await rpc(fn, args); if (okMsg) toast(okMsg); return r === null ? true : r; }
+  catch(e){ toast(errText(e)); return null; }
+  finally { pending--; if (!pending) load(); }
+}
+function errText(e){
+  const c = e && e.code;
+  if (c === "not_staff" || c === "needs_login") return "The database refused access. Check the Parts Desk settings in Supabase.";
+  if (c === "server_not_connected" || c === "server_not_found") return "Supabase isn’t connected to your Claude account. Add it in claude.ai Settings → Connectors, then reload.";
+  if (c === "needs_reauth") return "Your Supabase connection has expired. Reconnect Supabase in claude.ai Settings → Connectors.";
+  if (c === "selection_required") return "You have more than one Supabase connector. Choose which one this page should use, then reload.";
+  if (c === "not_in_manifest" || c === "consent_required") return "Supabase access is switched off for this page. Allow Supabase when asked, then try again.";
+  if (c === "blocked_by_policy" || c === "approval_required") return "Your organisation’s settings block this page from using Supabase.";
+  if (c === "server_unavailable" || c === "rate_limited") return "Supabase didn’t respond. Wait a moment and try again.";
+  if (c === "not_granted" || c === "capability_disabled" || c === "capability_removed") return "Open this page on claude.ai to use the parts database.";
+  if (c === "tool_error"){
+    const m = /ERROR:\s*(?:[A-Z0-9]{5}:\s*)?([^\n"]+)/.exec(String(e.message || ""));
+    return "Supabase refused the change: " + (m ? m[1] : String(e.message || "").slice(0, 160));
+  }
+  return "Couldn’t reach Supabase. Check your connection and try again.";
+}
+const HARD = ["not_staff","needs_login","server_not_connected","server_not_found","needs_reauth","selection_required","not_in_manifest","consent_required","blocked_by_policy","approval_required","not_granted","capability_disabled","capability_removed"];
+function syncLabel(){
+  const el = $("#sync"); if (!el) return;
+  if (state.error && !state.loaded) { el.textContent = "Offline"; el.dataset.state = "err"; return; }
+  if (state.syncErr) { el.textContent = "Sync problem — showing last data"; el.dataset.state = "err"; return; }
+  if (!state.syncedAt) { el.textContent = "Connecting…"; el.dataset.state = ""; return; }
+  el.textContent = "Synced " + new Date(state.syncedAt).toLocaleTimeString("en-AU", {hour:"numeric", minute:"2-digit"});
+  el.dataset.state = "ok";
+}
+async function load(){
+  if (!mcp || loading) return;
+  loading = true;
+  try {
+    let st;
+    try { st = await rpc("parts_app_state"); }
+    catch(e1){
+      if (!(e1 && e1.code === "server_unavailable")) throw e1;
+      await new Promise(r => setTimeout(r, 1500 + Math.random()*500));
+      st = await rpc("parts_app_state");
+    }
+    if (typeof st === "string") st = JSON.parse(st);
+    if (pending) return; // a write is in flight; its own reload follows
+    state.orders = (st.orders || []).map(x => ({ ...x, type: typeOf(x), priority: norm(x.priority), supplier: Array.isArray(x.supplier) ? x.supplier : [], lines: (x.lines || []).map(l => ({...l, qty: Number(l.qty) || 1})) }));
+    state.customers = Array.isArray(st.customers) ? st.customers : [];
+    state.supList = Array.isArray(st.suppliers) ? st.suppliers : [];
+    state.syncedAt = st.at || Date.now();
+    state.loaded = true; state.error = null; state.syncErr = false; state.errDetail = "";
+    if (state.editing && state.editing.id && !state.orders.some(o => o.id === state.editing.id)){ closeDrawer(); toast("That order was deleted or split by someone else"); }
+    if (state.panel) drawPanelRows();
+    render();
+  } catch(e){
+    state.errDetail = [e && e.code, e && e.message].filter(Boolean).join(" — ").slice(0, 300);
+    try { console.error("Parts Desk: Supabase load failed", e); } catch(_){}
+    if (!state.loaded || HARD.includes(e && e.code)){ state.error = errText(e); state.loaded = HARD.includes(e && e.code) ? false : state.loaded; }
+    else state.syncErr = true;
+    render();
+  } finally { loading = false; syncLabel(); }
+}
+function schedule(){
+  clearInterval(pollT);
+  pollT = setInterval(() => { if (!document.hidden && !state.editing) load(); }, 30000);
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden && !state.editing) load(); });
+
+/* ---------- suppliers ---------- */
+function supplierList(){ return (state.supList || []).slice().sort((a,b)=>a.localeCompare(b)); }
+function knownSuppliers(){ const all = new Set(supplierList()); state.orders.forEach(o => orderSuppliers(o).forEach(s => all.add(s))); return [...all]; }
+function findSupplier(v){ v = norm(v).toLowerCase(); if (!v) return null; return knownSuppliers().find(s => s.toLowerCase() === v) || null; }
+async function addSuppliers(names){
+  const fresh = [...new Set(names.map(n => norm(n).replace(/\s+/g," ").toUpperCase()).filter(n => n && !supplierList().some(s => s.toLowerCase() === n.toLowerCase())))];
+  if (!fresh.length) return true;
+  try {
+    await rpc("parts_app_suppliers_add", {p_names: fresh});
+    state.supList = [...supplierList(), ...fresh];
+    toast(fresh.length === 1 ? `Added ${fresh[0]} to your suppliers` : `Added ${fresh.length} new suppliers`);
+    if (state.panel === "sup") drawPanelRows();
+    return true;
+  } catch(e){ toast(errText(e)); return false; }
+}
+async function removeSupplier(name){
+  try { await rpc("parts_app_supplier_remove", {p_name: name}); state.supList = supplierList().filter(s => s !== name); toast(`Removed ${name} from the supplier list`); drawPanelRows(); }
+  catch(e){ toast(errText(e)); }
+}
+
+/* ---------- order drawer ---------- */
+function blank(){
+  return {status:"To be Ordered", type: state.type || "customer", priority:"", customer:"", vehicle:"", etaDate:"", eta:"", tracking:"", comments:"", invoiced:false, paid:false, parts:"", lines:[], supplier:[]};
+}
+function newLine(sup){ return {id:"", qty:1, part_no:"", description:"", supplier: sup || "", status:"pending"}; }
+function openDrawer(id){
+  const o = id ? state.orders.find(x => x.id === id) : null;
+  if (id && !o) return;
+  const draft = JSON.parse(JSON.stringify(o || blank()));
+  delete draft._hay;
+  draft.etaDate = draft.etaDate || "";
+  if (!draft.lines.length && !norm(draft.parts)) draft.lines = [newLine()];
+  state.panel = null;
+  state.editing = { id: id || null, draft, armed:false, splitArmed:false, paste:false };
+  drawDrawer();
+  setTimeout(() => (id ? $("#dStatus button[aria-pressed=true]") : $("#dCustomer"))?.focus(), 30);
+}
+function closeDrawer(){ state.editing = null; state.panel = null; $("#drawerRoot").innerHTML = ""; }
+function fmtTime(t){ if(!t) return ""; try { return new Date(t).toLocaleString("en-AU",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"}); } catch(e){ return ""; } }
+function statusGroups(lines){
+  return [...new Set(lines.filter(l => norm(l.description) || norm(l.part_no)).map(l => l.status))];
+}
+function splitGroups(o){
+  const s = new Set();
+  linesOf(o).forEach(l => { if (l.status === "pending" && norm(l.supplier)) s.add(norm(l.supplier)); });
+  return [...s];
+}
+function lineRow(l, i){
+  return `<div class="lrow" data-line="${i}">
+    <button type="button" class="lstat" data-lstat="${i}" style="${lVars(l.status)}" title="Click to change">${LLABEL[l.status] || "To order"}</button>
+    <input class="lqty" type="number" min="1" step="1" inputmode="numeric" value="${esc(l.qty)}" data-lf="qty" aria-label="Quantity" id="lq${i}">
+    <input class="lpn mono" type="text" value="${esc(l.part_no)}" data-lf="part_no" placeholder="Part no." aria-label="Part number" id="lp${i}">
+    <input class="ldesc" type="text" value="${esc(l.description)}" data-lf="description" placeholder="Description" aria-label="Description" id="ld${i}">
+    <input class="lsup ${norm(l.supplier) && !findSupplier(l.supplier) ? "newsup" : ""}" type="text" value="${esc(l.supplier)}" data-lf="supplier" list="supList" placeholder="Supplier" aria-label="Supplier" id="ls${i}" title="${norm(l.supplier) && !findSupplier(l.supplier) ? "New supplier — added to your list when you save" : ""}">
+    <button type="button" class="lrm" data-lrm="${i}" aria-label="Remove part">×</button>
+  </div>`;
+}
+function drawDrawer(){
+  const e = state.editing; if (!e) return;
+  const d = e.draft;
+  const src = e.id ? state.orders.find(x => x.id === e.id) : null;
+  const cust = customerByName(d.customer);
+  const vehicles = cust ? cust.vehicles || [] : [];
+  const groups = splitGroups(d);
+  const showSplit = groups.length >= 2 || (d.type === "list" && groups.length >= 1);
+  const unassigned = d.lines.filter(l => l.status === "pending" && !norm(l.supplier)).length;
+  const c = counts(d);
+  const scroll = $("#dForm")?.scrollTop || 0;
+  $("#drawerRoot").innerHTML = `
+  <div class="scrim" data-close></div>
+  <aside class="drawer wide" role="dialog" aria-modal="true" aria-labelledby="dTitle">
+    <div class="dr-h"><h2 id="dTitle">${e.id ? "Edit order" : "New order"}</h2><button class="x" type="button" data-close aria-label="Close">×</button></div>
+    <form class="dr-b" id="dForm" onsubmit="return false">
+      <div class="field"><span class="lbl">Order status</span>
+        <div class="statuses" id="dStatus">${STATUSES.map(s => `<button type="button" data-set-status="${esc(s)}" aria-pressed="${d.status===s}" style="${sVars(s)}">${esc(s)}</button>`).join("")}</div>
+      </div>
+      <div class="field"><span class="lbl">Order type</span>
+        <div class="typeseg" id="dType">${TYPES.map(([k,,l]) => `<button type="button" data-set-type="${k}" aria-pressed="${d.type===k}" style="${tVars(k)}">${esc(l)}</button>`).join("")}</div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="dCustomer">Customer</label><input id="dCustomer" type="text" value="${esc(d.customer)}" list="custList" autocomplete="off" placeholder="Start typing a name">
+          <div class="hintline" id="custHint">${custHintHTML(d.customer)}</div></div>
+        <div class="field"><label for="dVehicle">Vehicle</label><input id="dVehicle" type="text" value="${esc(d.vehicle)}" list="vehList" autocomplete="off" placeholder="${cust && vehicles.length ? "Pick or type a vehicle" : "e.g. GTR, EVO, PATROL"}">
+          <div class="vchips" id="vehChips">${vehChips(vehicles, d.vehicle)}</div></div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="dPriority">Priority</label>
+          <select id="dPriority"><option value="">None</option>${PRIORITIES.map(p=>`<option ${p===d.priority?"selected":""} value="${esc(p)}">${esc(p)}</option>`).join("")}</select></div>
+        <div class="field"><label for="dEta">Expected by</label>
+          <div class="addrow"><input id="dEta" type="date" value="${esc(d.etaDate)}"><button type="button" class="btn sm" data-eta="0">Today</button><button type="button" class="btn sm" data-eta="1">+1</button><button type="button" class="btn sm" data-eta="3">+3</button></div>
+          ${norm(d.eta) ? `<div class="hintline">Old ETA note: ${esc(d.eta)}</div>` : ""}</div>
+      </div>
+
+      <div class="field">
+        <div class="lhead"><span class="lbl">Parts ${c.n ? `<span class="muted">· ${plural(c.n,"part")}${c.n ? `, ${c.received} received` : ""}</span>` : ""}</span>
+          <span class="lactions"><button type="button" class="linkbtn" data-allstat="ordered">All ordered</button><button type="button" class="linkbtn" data-allstat="received">All received</button></span></div>
+        <div class="lines" id="dLines">
+          ${d.lines.length ? `<div class="lrow lcap" aria-hidden="true"><span>Status</span><span>Qty</span><span>Part no.</span><span>Description</span><span>Supplier</span><span></span></div>` : ""}
+          ${d.lines.map(lineRow).join("")}
+        </div>
+        <div class="laddrow">
+          <button type="button" class="btn sm" id="addLine">+ Add part</button>
+          <button type="button" class="btn sm" id="togglePaste">${e.paste ? "Hide paste box" : "Paste a list"}</button>
+          ${d.lines.length ? `<span class="setsup"><label for="bulkSup">Supplier for parts without one</label><input id="bulkSup" type="text" list="supList" placeholder="Supplier"><button type="button" class="btn sm" id="bulkSupBtn">Apply</button></span>` : ""}
+        </div>
+        ${e.paste ? `<div class="pastebox"><textarea id="pasteIn" rows="5" placeholder="One part per line, e.g.&#10;2 x AN6 PTFE hose end&#10;MD030763 Thermostat x 6"></textarea><button type="button" class="btn sm primary" id="pasteAdd">Add these parts</button></div>` : ""}
+        ${d.type !== "list" && statusGroups(d.lines).length > 1 ? `<div class="splitbox mixed">
+            <div><b>These parts will be saved as ${plural(statusGroups(d.lines).length, "separate order")}</b> — ${statusGroups(d.lines).map(g => LLABEL[g]).join(", ")}. Each order keeps the same customer, vehicle and notes, and sits in the matching column.</div>
+          </div>` : ""}
+        ${showSplit ? `<div class="splitbox">
+            <div><b>Split into ${plural(groups.length, "supplier order")}</b> — ${groups.map(esc).join(", ")}. Each supplier gets its own order with the same customer and vehicle${unassigned ? `. ${plural(unassigned, "part")} with no supplier stay${unassigned === 1 ? "s" : ""} here` : ""}.</div>
+            <button type="button" class="btn sm ${e.splitArmed ? "primary" : ""}" id="splitBtn">${e.splitArmed ? "Confirm split" : "Split by supplier"}</button>
+          </div>` : ""}
+        ${norm(d.parts) ? `<details class="orig" ${d.lines.length ? "" : "open"}><summary>Original notes from Airtable</summary><pre>${esc(d.parts)}</pre>${!d.lines.filter(l => norm(l.description)||norm(l.part_no)).length ? `<button type="button" class="btn sm" id="convertNotes">Turn these notes into part lines</button>` : ""}</details>` : ""}
+      </div>
+
+      <div class="field"><label for="dTracking">Tracking</label><input id="dTracking" class="mono" type="text" value="${esc(d.tracking)}" placeholder="Tracking link or consignment number">
+        ${/^https?:/i.test(norm(d.tracking)) ? `<div>${trackLink(d.tracking)}</div>` : ""}</div>
+      <div class="field"><label for="dComments">Comments</label><textarea id="dComments" rows="3" style="min-height:70px">${esc(d.comments)}</textarea></div>
+      <div class="field"><span class="lbl">Billing</span>
+        <div class="checks">
+          <label class="check"><input type="checkbox" id="dInvoiced" ${d.invoiced?"checked":""}> Invoiced</label>
+          <label class="check"><input type="checkbox" id="dPaid" ${d.paid?"checked":""}> Paid</label>
+        </div></div>
+      ${src ? `<div class="stamp">Added ${esc(fmtTime(src.createdAt))} · Updated ${esc(fmtTime(src.updatedAt))}</div>` : ""}
+      <datalist id="supList">${knownSuppliers().sort((a,b)=>a.localeCompare(b)).map(s=>`<option value="${esc(s)}">`).join("")}</datalist>
+      <datalist id="custList">${state.customers.map(c=>`<option value="${esc(c.name)}">`).join("")}</datalist>
+      <datalist id="vehList">${vehOptions(vehicles)}</datalist>
+    </form>
+    <div class="dr-f">
+      ${e.id ? `<button type="button" class="btn danger ${e.armed?"armed":""}" id="dDelete">${e.armed?"Click again to delete":"Delete"}</button>` : `<span></span>`}
+      <div style="display:flex;gap:8px"><button type="button" class="btn ghost" data-close>Cancel</button><button type="button" class="btn primary" id="dSave">${e.id?"Save changes":"Add order"}</button></div>
+    </div>
+  </aside>`;
+  const f = $("#dForm"); if (f) f.scrollTop = scroll;
+}
+function vehChips(vehicles, current){
+  return vehicles.map(v => `<button type="button" class="vchip ${v.label.toLowerCase() === norm(current).toLowerCase() ? "on" : ""}" data-veh="${esc(v.label)}">${esc(v.label)}</button>`).join("");
+}
+function vehOptions(vehicles){ return vehicles.map(v=>`<option value="${esc(v.label)}">`).join(""); }
+function custHintHTML(name){
+  const c = customerByName(name);
+  return norm(name) && !c ? `New customer — <b>${esc(norm(name))}</b> will be added when you save.` : c && c.phone ? `☎ <a href="tel:${esc(c.phone)}">${esc(c.phone)}</a>` : "";
+}
+function refreshCustomerBits(){
+  const name = $("#dCustomer")?.value || "";
+  const c = customerByName(name), vehicles = c ? c.vehicles || [] : [];
+  const h = $("#custHint"); if (h) h.innerHTML = custHintHTML(name);
+  const vc = $("#vehChips"); if (vc) vc.innerHTML = vehChips(vehicles, $("#dVehicle")?.value || "");
+  const vl = $("#vehList"); if (vl) vl.innerHTML = vehOptions(vehicles);
+}
+function readForm(){
+  const e = state.editing; if (!e || !$("#dForm")) return;
+  const d = e.draft;
+  d.customer = $("#dCustomer").value; d.vehicle = $("#dVehicle").value; d.priority = $("#dPriority").value;
+  d.etaDate = $("#dEta").value; d.tracking = $("#dTracking").value; d.comments = $("#dComments").value;
+  d.invoiced = $("#dInvoiced").checked; d.paid = $("#dPaid").checked;
+  document.querySelectorAll("#dLines .lrow[data-line]").forEach(row => {
+    const l = d.lines[+row.dataset.line]; if (!l) return;
+    row.querySelectorAll("[data-lf]").forEach(inp => {
+      const k = inp.dataset.lf;
+      l[k] = k === "qty" ? Math.max(1, Number(inp.value) || 1) : inp.value;
+    });
+    const known = findSupplier(l.supplier); if (known) l.supplier = known;
+  });
+}
+function parseLines(text, sup){
+  return String(text || "").split(/\r?\n/).map(s => s.trim().replace(/^[-•*]\s*/, "")).filter(Boolean).map(s => {
+    let status = "pending", qty = 1;
+    if (s.includes("✅")) { status = "ordered"; s = s.replace(/\s*✅\s*/g, " ").trim(); }
+    let m = /^(\d{1,3})\s*[xX×]\s+(.+)$/.exec(s);
+    if (m){ qty = +m[1]; s = m[2]; }
+    else if ((m = /^(.+?)\s*[xX×]\s*(\d{1,3})$/.exec(s))){ qty = +m[2]; s = m[1]; }
+    let pn = (/\b([A-Z]{1,6}[0-9][A-Z0-9-]*[A-Z0-9])\b/.exec(s) || [])[1] || "";
+    if (pn && (pn.length < 6 || /^(RB|EJ|SR|VG|VR|JZ|KA|CA|FA|FB|EZ)[0-9]{2}[A-Z]*$/.test(pn))) pn = "";
+    let supplier = sup || "";
+    if (!supplier){
+      const low = " " + s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim() + " ";
+      const hit = knownSuppliers().sort((a,b) => b.length - a.length).find(n => { const k = " " + n.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim() + " "; return k.trim() && low.includes(k); });
+      if (hit) supplier = hit;
+    }
+    return {id:"", qty, part_no: pn, description: s, supplier, status};
+  });
+}
+function draftPayload(){
+  const e = state.editing, d = e.draft;
+  const lines = d.lines
+    .map(l => ({...l, part_no: norm(l.part_no), description: norm(l.description), supplier: norm(l.supplier).toUpperCase(), qty: Math.max(1, Number(l.qty) || 1)}))
+    .filter(l => l.part_no || l.description);
+  const p = {
+    status: d.status, type: d.type || "customer", priority: d.priority,
+    customer_name: norm(d.customer).toUpperCase(), vehicle_label: norm(d.vehicle).toUpperCase(),
+    eta_date: d.etaDate || "", tracking: norm(d.tracking), comments: d.comments.replace(/\s+$/,""),
+    invoiced: !!d.invoiced, paid: !!d.paid,
+    lines: lines.map(({id, qty, part_no, description, supplier, status}) => ({id, qty, part_no, description, supplier, status}))
+  };
+  if (e.id) p.id = e.id;
+  return p;
+}
+async function saveDraft(){
+  readForm();
+  const p = draftPayload();
+  if (!p.customer_name && !p.lines.length && !norm(state.editing.draft.parts)) throw {code:"validation", message:"Add a customer or at least one part before saving."};
+  const unknown = p.lines.map(l => l.supplier).filter(s => s && !findSupplier(s));
+  if (unknown.length) await addSuppliers(unknown);
+  const id = await rpc("parts_app_save", {p});
+  if (id) state.editing.id = id;
+  return {id, p};
+}
+async function saveDrawer(){
+  const btn = $("#dSave"); const isNew = !state.editing.id;
+  btn.disabled = true; btn.textContent = "Saving…";
+  pending++;
+  try {
+    const {p} = await saveDraft();
+    const before = !isNew ? state.orders.find(x => x.id === state.editing.id) : null;
+    const groups = p.type !== "list" ? statusGroups(p.lines).length : 1;
+    toast(groups > 1 ? `Saved as ${groups} orders — one for each part status` : p.status === "Received" && (!before || before.status !== "Received") ? "Saved — received orders move to the archive after a day" : (isNew ? "Order added" : "Order saved"));
+    closeDrawer();
+  } catch(err){
+    btn.disabled = false; btn.textContent = isNew ? "Add order" : "Save changes";
+    toast(err && err.code === "validation" ? err.message : errText(err));
+  } finally { pending--; load(); }
+}
+async function splitFromDrawer(){
+  const e = state.editing;
+  if (!e.splitArmed){ readForm(); e.splitArmed = true; drawDrawer(); return; }
+  const btn = $("#splitBtn"); btn.disabled = true; btn.textContent = "Splitting…";
+  pending++;
+  try {
+    const {id} = await saveDraft();
+    const n = await rpc("parts_app_split", {p_order: id}) || 0;
+    toast(n ? `Split into ${plural(n, "supplier order")}` : "Nothing to split — pick a supplier for each part first");
+    closeDrawer();
+  } catch(err){ e.splitArmed = false; drawDrawer(); toast(err && err.code === "validation" ? err.message : errText(err)); }
+  finally { pending--; load(); }
+}
+async function deleteFromDrawer(){
+  const e = state.editing;
+  if (!e.armed){ readForm(); e.armed = true; drawDrawer(); clearTimeout(e.t); e.t = setTimeout(() => { if (state.editing === e){ readForm(); e.armed = false; drawDrawer(); } }, 4000); return; }
+  const id = e.id;
+  pending++;
+  try { await rpc("parts_app_delete_order", {p_order: id}); state.orders = state.orders.filter(o => o.id !== id); closeDrawer(); render(); toast("Order deleted"); }
+  catch(err){ toast(errText(err)); }
+  finally { pending--; load(); }
+}
+
+/* ---------- side panels: suppliers & customers ---------- */
+function openPanel(kind){
+  state.editing = null; state.panel = kind; state.panelFilter = ""; state.merge = null; state.custEdit = null;
+  const sup = kind === "sup";
+  $("#drawerRoot").innerHTML = `
+  <div class="scrim" data-close></div>
+  <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="pTitle">
+    <div class="dr-h"><h2 id="pTitle">${sup ? "Suppliers" : "Customers"}</h2><button class="x" type="button" data-close aria-label="Close">×</button></div>
+    <div class="dr-b">
+      <div class="field"><label for="pAddIn">${sup ? "Add a supplier" : "Add a customer"}</label>
+        <div class="addrow"><input id="pAddIn" type="text" placeholder="${sup ? "Supplier name" : "Customer name"}" autocomplete="off"><button type="button" class="btn primary" id="pAddBtn">Add</button></div>
+      </div>
+      <div class="field"><label for="pFilter">${sup ? "Your suppliers" : "Your customers"}</label>
+        <input id="pFilter" type="text" placeholder="Filter the list…" autocomplete="off">
+      </div>
+      <p class="hint" style="margin:0">${sup ? "Removing a supplier only takes it off the pick list. Orders that already use it keep it." : "Customers are added automatically when you save an order. Merge duplicates so each customer’s history is in one place."}</p>
+      <div class="suprows" id="pRows"></div>
+    </div>
+  </aside>`;
+  drawPanelRows();
+  setTimeout(() => $("#pAddIn")?.focus(), 30);
+}
+function drawPanelRows(){
+  const el = $("#pRows"); if (!el) return;
+  const f = state.panelFilter.toLowerCase();
+  if (state.panel === "sup"){
+    const uses = {}; state.orders.forEach(o => orderSuppliers(o).forEach(s => uses[s] = (uses[s]||0) + 1));
+    const rows = supplierList().filter(s => !f || s.toLowerCase().includes(f));
+    el.innerHTML = rows.length ? rows.map(s => `<div class="suprow"><span><span class="sup">${esc(s)}</span>${uses[s] ? `<span class="uses">${plural(uses[s],"order")}</span>` : ""}</span><button type="button" class="btn sm danger" data-rmsup="${esc(s)}">Remove</button></div>`).join("")
+      : `<div class="suprow"><span class="muted">No suppliers match.</span></div>`;
+    return;
+  }
+  const stats = {}; state.orders.forEach(o => { if (!o.customerId) return; const s = stats[o.customerId] || (stats[o.customerId] = {n:0, open:0}); s.n++; if (o.status !== "Received") s.open++; });
+  const rows = state.customers.filter(c => !f || c.name.toLowerCase().includes(f) || (c.vehicles||[]).some(v => v.label.toLowerCase().includes(f)));
+  el.innerHTML = rows.length ? rows.map(c => {
+    const s = stats[c.id] || {n:0, open:0};
+    if (state.custEdit === c.id) return `<div class="suprow cedit">
+      <div class="cfields">
+        <input type="text" id="ceName" value="${esc(c.name)}" aria-label="Name">
+        <input type="text" id="cePhone" value="${esc(c.phone)}" placeholder="Phone" aria-label="Phone">
+        <div class="addrow"><input type="text" id="ceVeh" placeholder="Add a vehicle, e.g. R34 GTR" aria-label="New vehicle"><button type="button" class="btn sm" data-addveh="${esc(c.id)}">Add vehicle</button></div>
+      </div>
+      <div class="cbtns"><button type="button" class="btn sm primary" data-cesave="${esc(c.id)}">Save</button><button type="button" class="btn sm ghost" data-ceclose>Cancel</button></div>
+    </div>`;
+    if (state.merge === c.id) return `<div class="suprow cedit">
+      <div class="cfields"><span>Merge <b>${esc(c.name)}</b> into:</span>
+        <select id="mergeInto" aria-label="Merge into">${state.customers.filter(x => x.id !== c.id).map(x => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")}</select>
+        <span class="muted">All ${plural(s.n,"order")} and vehicles move across, then ${esc(c.name)} is removed.</span></div>
+      <div class="cbtns"><button type="button" class="btn sm primary" data-domerge="${esc(c.id)}">Merge</button><button type="button" class="btn sm ghost" data-ceclose>Cancel</button></div>
+    </div>`;
+    return `<div class="suprow">
+      <span class="cinfo"><b>${esc(c.name)}</b>${c.phone ? ` <span class="muted">· ${esc(c.phone)}</span>` : ""}
+        <span class="vlist">${(c.vehicles||[]).map(v => `<span class="sup">${esc(v.label)}</span>`).join(" ")}</span>
+        <span class="uses">${plural(s.n,"order")}${s.open ? ` · ${s.open} open` : ""}</span></span>
+      <span class="cbtns"><button type="button" class="btn sm" data-custview="${esc(c.id)}">Orders</button><button type="button" class="btn sm ghost" data-custedit="${esc(c.id)}">Edit</button><button type="button" class="btn sm ghost" data-merge="${esc(c.id)}">Merge</button></span>
+    </div>`;
+  }).join("") : `<div class="suprow"><span class="muted">No customers match.</span></div>`;
+}
+async function panelAdd(){
+  const inp = $("#pAddIn"); const v = norm(inp.value).toUpperCase(); if (!v) return;
+  if (state.panel === "sup"){
+    if (supplierList().some(s => s.toLowerCase() === v.toLowerCase())) { toast(`${v} is already on the list`); return; }
+    if (await addSuppliers([v])){ inp.value = ""; inp.focus(); }
+  } else {
+    if (customerByName(v)) { toast(`${v} is already a customer`); return; }
+    const r = await run("parts_app_customer_add", {p_name: v}, `Added ${v}`);
+    if (r){ inp.value = ""; inp.focus(); }
+  }
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click", ev => {
+  const t = ev.target;
+  if (t.closest("[data-stop]")) return;
+  const q = sel => t.closest(sel);
+  let el;
+  if ((el = q("[data-type]"))){ state.type = el.dataset.type; render(); return; }
+  if (q("#supBtn")){ openPanel("sup"); return; }
+  if (q("#custBtn")){ openPanel("cust"); return; }
+  if (q("#pAddBtn")){ panelAdd(); return; }
+  if ((el = q("[data-rmsup]"))){ removeSupplier(el.dataset.rmsup); return; }
+  if ((el = q("[data-custview]"))){ state.customerId = el.dataset.custview; state.status = null; state.flag = null; if (state.view === "archive") state.view = store("view") || "board"; closeDrawer(); render(); return; }
+  if ((el = q("[data-custedit]"))){ state.custEdit = el.dataset.custedit; state.merge = null; drawPanelRows(); $("#ceName")?.focus(); return; }
+  if ((el = q("[data-merge]"))){ state.merge = el.dataset.merge; state.custEdit = null; drawPanelRows(); return; }
+  if (q("[data-ceclose]")){ state.merge = null; state.custEdit = null; drawPanelRows(); return; }
+  if ((el = q("[data-cesave]"))){ const id = el.dataset.cesave; state.custEdit = null; run("parts_app_customer_update", {p: {id, name: $("#ceName").value.toUpperCase(), phone: $("#cePhone").value}}, "Customer saved"); drawPanelRows(); return; }
+  if ((el = q("[data-addveh]"))){ const v = norm($("#ceVeh").value); if (v) run("parts_app_vehicle_add", {p_customer: el.dataset.addveh, p_label: v.toUpperCase()}, `Added ${v.toUpperCase()}`); $("#ceVeh").value = ""; return; }
+  if ((el = q("[data-domerge]"))){ const from = el.dataset.domerge, into = $("#mergeInto").value; if (!into) return; state.merge = null; if (state.customerId === from) state.customerId = into; run("parts_app_customer_merge", {p_from: from, p_into: into}, "Customers merged"); drawPanelRows(); return; }
+  if (q("#custChip")){ state.customerId = ""; render(); return; }
+
+  if ((el = q("[data-status]"))){ state.status = state.status === el.dataset.status ? null : el.dataset.status; state.flag = null; if (state.view === "archive") state.view = store("view") || "board"; render(); return; }
+  if ((el = q("[data-flag]"))){ state.flag = state.flag === el.dataset.flag ? null : el.dataset.flag; state.status = null; render(); return; }
+  if ((el = q("[data-view]"))){ const v = el.dataset.view; state.view = (v === "archive" && state.view === "archive") ? (store("view") || "board") : v; if (state.view !== "archive") store("view", state.view); if (state.view === "archive") state.status = null; render(); return; }
+  if ((el = q("[data-sort]"))){ const k = el.dataset.sort; state.sort = {key:k, dir: state.sort.key===k ? -state.sort.dir : 1}; render(); return; }
+  if ((el = q("[data-advance]"))){ patch(el.dataset.advance, {status: el.dataset.to}, `Moved to ${el.dataset.to}`); return; }
+  if ((el = q("[data-open]"))){ openDrawer(el.dataset.open); return; }
+  if ((el = q("[data-toggle]"))){ const o = state.orders.find(x => x.id === el.dataset.id); if (o) patch(o.id, {[el.dataset.toggle]: !o[el.dataset.toggle]}); return; }
+  if ((el = q("[data-copy]"))){ copyRun(el.dataset.copy); return; }
+  if ((el = q("[data-orderall]"))){ orderAll(el.dataset.orderall, el); return; }
+  if (q("#clearBtn")){ state.q=""; state.priority=""; state.supplier=""; state.status=null; state.flag=null; state.type=""; state.customerId=""; $("#q").value=""; render(); return; }
+  if (q("#newBtn")){ openDrawer(null); return; }
+  if (q("#retryBtn")){ state.error = null; $("#main").innerHTML = `<div class="state"><strong>Connecting…</strong></div>`; load(); return; }
+
+  if (q("#syncBtn")){ load(); return; }
+
+  // order drawer
+  if (q("[data-close]")){ closeDrawer(); return; }
+  const e = state.editing;
+  if (e){
+    if ((el = q("[data-set-status]"))){ readForm(); const s = el.dataset.setStatus; if (s !== e.draft.status){ e.draft.status = s; e.draft.lines = cascadeLines(e.draft.lines, s); } drawDrawer(); return; }
+    if ((el = q("[data-set-type]"))){ readForm(); e.draft.type = el.dataset.setType; drawDrawer(); return; }
+    if ((el = q("[data-veh]"))){ $("#dVehicle").value = el.dataset.veh; refreshCustomerBits(); return; }
+    if ((el = q("[data-eta]"))){ readForm(); const d = new Date(); d.setDate(d.getDate() + Number(el.dataset.eta)); e.draft.etaDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; drawDrawer(); return; }
+    if ((el = q("[data-lstat]"))){ readForm(); const l = e.draft.lines[+el.dataset.lstat]; l.status = LSTAT[(LSTAT.indexOf(l.status) + 1) % 3]; drawDrawer(); return; }
+    if ((el = q("[data-allstat]"))){ readForm(); e.draft.lines.forEach(l => l.status = el.dataset.allstat); drawDrawer(); return; }
+    if ((el = q("[data-lrm]"))){ readForm(); e.draft.lines.splice(+el.dataset.lrm, 1); drawDrawer(); return; }
+    if (q("#addLine")){ readForm(); const last = e.draft.lines[e.draft.lines.length-1]; e.draft.lines.push(newLine(last ? last.supplier : "")); drawDrawer(); document.querySelector(`#ld${e.draft.lines.length-1}`)?.focus(); return; }
+    if (q("#togglePaste")){ readForm(); e.paste = !e.paste; drawDrawer(); $("#pasteIn")?.focus(); return; }
+    if (q("#pasteAdd")){ const txt = $("#pasteIn").value; readForm(); const add = parseLines(txt); e.draft.lines = e.draft.lines.filter(l => norm(l.description) || norm(l.part_no)).concat(add); e.paste = false; drawDrawer(); toast(`Added ${plural(add.length, "part")}`); return; }
+    if (q("#convertNotes")){ readForm(); const add = parseLines(e.draft.parts, (e.draft.supplier||[]).length === 1 ? e.draft.supplier[0] : ""); e.draft.lines = add; drawDrawer(); toast(`Made ${plural(add.length, "part line")} — check them, then save`); return; }
+    if (q("#bulkSupBtn")){ const v = norm($("#bulkSup").value).toUpperCase(); readForm(); if (v){ const s = findSupplier(v) || v; e.draft.lines.forEach(l => { if (!norm(l.supplier)) l.supplier = s; }); } drawDrawer(); return; }
+    if (q("#splitBtn")){ splitFromDrawer(); return; }
+    if (q("#dSave")){ saveDrawer(); return; }
+    if (q("#dDelete")){ deleteFromDrawer(); return; }
+    if (q(".drawer")) return;
+  }
+  const card = q("[data-id]");
+  if (card && !q("button,select,a,input")) openDrawer(card.dataset.id);
+});
+document.addEventListener("change", ev => {
+  const t = ev.target;
+  if (t.matches("[data-status-for]")) patch(t.dataset.statusFor, {status: t.value}, `Moved to ${t.value}`);
+  if (t.id === "fPriority"){ state.priority = t.value; render(); }
+  if (t.id === "fSupplier"){ state.supplier = t.value; render(); }
+  if (state.editing && (t.id === "dCustomer" || t.id === "dVehicle")) refreshCustomerBits();
+});
+let qT;
+const CAPS = "#dCustomer, #dVehicle, .lsup, #bulkSup, #pAddIn, #ceName, #ceVeh";
+document.addEventListener("input", ev => {
+  const t = ev.target;
+  if (t.matches && t.matches(CAPS) && t.value !== t.value.toUpperCase()){
+    const a = t.selectionStart, b = t.selectionEnd;
+    t.value = t.value.toUpperCase();
+    try { t.setSelectionRange(a, b); } catch(_){}
+  }
+  if (t.id === "q"){ clearTimeout(qT); qT = setTimeout(() => { state.q = t.value.trim(); render(); }, 120); }
+  if (t.id === "pFilter"){ state.panelFilter = t.value.trim(); drawPanelRows(); }
+  if (state.editing && (t.id === "dCustomer" || t.id === "dVehicle")) refreshCustomerBits();
+  if (state.editing && t.matches(".lsup")){ const v = norm(t.value); const isNew = !!v && !findSupplier(v); t.classList.toggle("newsup", isNew); t.title = isNew ? "New supplier — added to your list when you save" : ""; }
+});
+document.addEventListener("keydown", ev => {
+  const t = ev.target;
+  if (ev.key === "Escape" && (state.editing || state.panel)){ closeDrawer(); return; }
+  if (t.id === "pAddIn" && ev.key === "Enter"){ ev.preventDefault(); panelAdd(); return; }
+  if (state.editing && ev.key === "Enter" && (ev.metaKey || ev.ctrlKey)){ ev.preventDefault(); saveDrawer(); return; }
+  if (state.editing && ev.key === "Enter" && t.matches("#dLines input")){
+    ev.preventDefault();
+    const row = t.closest(".lrow"); const i = +row.dataset.line;
+    readForm();
+    if (i === state.editing.draft.lines.length - 1){ state.editing.draft.lines.push(newLine(state.editing.draft.lines[i].supplier)); }
+    drawDrawer(); document.querySelector(`#ld${i+1}`)?.focus();
+    return;
+  }
+  if (state.editing && ev.key === "Enter" && t.tagName === "INPUT"){ ev.preventDefault(); return; }
+  if (ev.key === "Enter" && t.matches(".card,.run-i")){ openDrawer(t.dataset.id); }
+  if (ev.key === "/" && !t.matches("input,textarea,select")){ ev.preventDefault(); $("#q").focus(); }
+});
+
+/* drag between board columns */
+let dragId = null;
+document.addEventListener("dragstart", ev => { const c = ev.target.closest?.(".card"); if (!c) return; dragId = c.dataset.id; c.classList.add("dragging"); ev.dataTransfer.effectAllowed = "move"; try{ ev.dataTransfer.setData("text/plain", dragId); }catch(e){} });
+document.addEventListener("dragend", ev => { ev.target.closest?.(".card")?.classList.remove("dragging"); document.querySelectorAll(".col.over").forEach(c=>c.classList.remove("over")); dragId = null; });
+document.addEventListener("dragover", ev => { const c = ev.target.closest?.(".col"); if (!c || !dragId) return; ev.preventDefault(); document.querySelectorAll(".col.over").forEach(x=>{ if(x!==c) x.classList.remove("over"); }); c.classList.add("over"); });
+document.addEventListener("drop", ev => {
+  const c = ev.target.closest?.(".col"); if (!c || !dragId) return; ev.preventDefault();
+  const o = state.orders.find(x => x.id === dragId); const to = c.dataset.col;
+  c.classList.remove("over");
+  if (o && o.status !== to) patch(o.id, {status: to}, `Moved to ${to}`);
+});
+
+/* supplier run helpers */
+function runItems(name){ return openLines(state.orders.filter(o => matches(o))).filter(r => norm(r.l.supplier) === name); }
+async function copyRun(name){
+  const items = runItems(name);
+  const text = `${name} — parts order (JPS Motorsports)\n\n` + items.map(({o,l}) => {
+    const who = [norm(o.customer), norm(o.vehicle)].filter(Boolean).join(" · ") || (typeOf(o) === "stock" ? "Stock" : typeOf(o) === "tools" ? "Tools" : "");
+    return `${Number(l.qty)||1} x ${[norm(l.part_no), norm(l.description)].filter(Boolean).join(" — ")}${who ? `   [${who}]` : ""}`;
+  }).join("\n");
+  try { await navigator.clipboard.writeText(text); toast(`Copied ${plural(items.length, "part")} for ${name}`); }
+  catch(e){
+    const ta = document.createElement("textarea"); ta.value = text; ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand("copy"); } catch(_){} ta.remove();
+    toast(ok ? `Copied ${plural(items.length, "part")} for ${name}` : "Couldn’t copy — open the orders and copy the parts instead.");
+  }
+}
+async function orderAll(name, btn){
+  if (btn.dataset.armed !== "1"){ btn.dataset.armed = "1"; btn.textContent = "Confirm"; btn.classList.add("primary"); setTimeout(()=>{ if(btn.isConnected){ btn.dataset.armed=""; btn.textContent="Mark all ordered"; btn.classList.remove("primary"); } }, 4000); return; }
+  const items = runItems(name);
+  if (!items.length) return;
+  const ids = items.map(r => r.l.id);
+  items.forEach(({l}) => { l.status = "ordered"; });
+  render();
+  await run("parts_app_lines_status", {p_ids: ids, p_status: "ordered"}, `${plural(items.length, "part")} from ${name} marked ordered`);
+}
+
+/* ---------- boot ---------- */
+render();
+(async () => {
+  if (!sb){ state.error = "Couldn’t load the database library. Check your internet connection and reload."; render(); syncLabel(); return; }
+  mcp = sb;
+  $("#main").innerHTML = `<div class="state"><strong>Loading orders…</strong></div>`;
+  await load();
+  schedule();
+})();
+})();
+</script>
+
+
+</body>
+</html>
