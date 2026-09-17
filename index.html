@@ -206,7 +206,9 @@ td .note{max-width:200px}
 .suphint b{color:var(--ink)}
 .addrow{display:flex;gap:8px}
 .addrow input{flex:1;min-width:0}
-.suprows{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:0;overflow:hidden}
+.suprows{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:0;flex-shrink:0}
+.dr-b>*{flex-shrink:0}
+.dr-b{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .suprow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;border-bottom:1px solid var(--line)}
 .suprow:last-child{border-bottom:0}
 .suprow .uses{font-family:var(--mono);font-size:11.5px;color:var(--faint);margin-left:8px}
@@ -911,6 +913,7 @@ function drawDrawer(){
         <div class="field"><label for="dCustomer">Customer</label><input id="dCustomer" type="text" value="${esc(d.customer)}" list="custList" autocomplete="off" placeholder="Start typing a name">
           <div class="hintline" id="custHint">${custHintHTML(d.customer)}</div></div>
         <div class="field"><label for="dVehicle">Vehicle</label><input id="dVehicle" type="text" value="${esc(d.vehicle)}" list="vehList" autocomplete="off" placeholder="${cust && vehicles.length ? "Pick or type a vehicle" : "e.g. GTR, EVO, PATROL"}">
+          <div class="hintline" id="vehHint"></div>
           <div class="vchips" id="vehChips">${vehChips(vehicles, d.vehicle)}</div></div>
       </div>
       <div class="two">
@@ -964,8 +967,49 @@ function drawDrawer(){
   </aside>`;
   const f = $("#dForm"); if (f) f.scrollTop = scroll;
 }
+
+const VEHICLE_MAKES = {
+  NISSAN: ["GTR","GT-R","R31","R32","R33","R34","R35","SKYLINE","SILVIA","S13","S14","S15","180SX","200SX","240SX","350Z","370Z","300ZX","Z32","Z33","Z34","400Z","FAIRLADY","PATROL","GQ","GU","Y60","Y61","Y62","NAVARA","D22","D40","NP300","STAGEA","LAUREL","CEFIRO","A31","C33","C34","C35","PULSAR","GTIR","SUNNY","BLUEBIRD","MAXIMA","X-TRAIL","XTRAIL","PATHFINDER","NISMO","RB20","RB25","RB26","RB30","SR20","VR38","VG30","TD42","ZD30"],
+  MITSUBISHI: ["EVO","EVOLUTION","LANCER","GALANT","VR4","VR-4","PAJERO","TRITON","3000GT","GTO","FTO","MIRAGE","ASX","OUTLANDER","DELICA","SIGMA","MAGNA","4G63","4B11","6G72"],
+  TOYOTA: ["SUPRA","JZA80","A80","A90","MK4","MK5","CHASER","CRESTA","MARK II","MARK2","MARKII","JZX81","JZX90","JZX100","JZX110","SOARER","ARISTO","ALTEZZA","CELICA","AE86","A86","86","GT86","GR86","GR YARIS","GRYARIS","YARIS","GR COROLLA","COROLLA","HILUX","LANDCRUISER","LAND CRUISER","LC70","LC76","LC79","LC100","LC200","LC300","PRADO","FJ","FJ CRUISER","CAMRY","AURION","MR2","SW20","STARLET","CROWN","CENTURY","HIACE","1JZ","2JZ","3SGTE","4AGE"],
+  SUBARU: ["WRX","STI","IMPREZA","GC8","GDA","GDB","GRB","VAB","LIBERTY","LEGACY","FORESTER","BRZ","LEVORG","OUTBACK","EJ20","EJ25","FA20"],
+  HONDA: ["CIVIC","INTEGRA","DC2","DC5","EK9","EG","EP3","FD2","FK8","FL5","S2000","NSX","PRELUDE","ACCORD","JAZZ","K20","K24","B16","B18"],
+  MAZDA: ["RX7","RX-7","RX8","RX-8","FD","FC","FD3S","FC3S","MX5","MX-5","MIATA","MAZDA3","MAZDA6","MPS","BT50","BT-50","13B","20B"],
+  HOLDEN: ["COMMODORE","VL","VK","VN","VP","VR","VS","VT","VX","VY","VZ","VE","VF","MONARO","TORANA","KINGSWOOD","HSV","MALOO","COLORADO","RODEO"],
+  FORD: ["FALCON","XR6","XR8","FPV","FG","BF","TERRITORY","RANGER","MUSTANG","FOCUS","FIESTA","RAPTOR","BARRA","EVEREST"],
+  VOLKSWAGEN: ["GOLF","GTI","POLO","AMAROK","PASSAT","SCIROCCO","TIGUAN"],
+  BMW: ["M2","M3","M4","M5","E30","E36","E46","E92","F80","F82","G80"],
+  AUDI: ["RS3","RS4","RS6","S3","S4","TTRS"],
+  ISUZU: ["DMAX","D-MAX","MUX","MU-X"],
+  SUZUKI: ["SWIFT","JIMNY"],
+  LEXUS: ["IS200","IS250","IS300","IS350","GS300","LS400","SC300","SC400"],
+  HYUNDAI: ["I30N","I20N","VELOSTER"],
+  CHEVROLET: ["CAMARO","CORVETTE","SILVERADO"]
+};
+const MAKE_NAMES = Object.keys(VEHICLE_MAKES).concat(["TOYOTA","NISSAN","MERCEDES","PORSCHE","DODGE","RAM","JEEP","KIA","ALFA","LAND ROVER","RANGE ROVER","VOLVO","PEUGEOT","RENAULT","DAIHATSU"]);
+const MAKE_ALIAS = {VW:"VOLKSWAGEN", CHEVY:"CHEVROLET", MITSI:"MITSUBISHI", MITSU:"MITSUBISHI", DATSUN:"NISSAN", MERC:"MERCEDES"};
+const MODEL_TO_MAKE = (() => { const m = {}; for (const [mk, list] of Object.entries(VEHICLE_MAKES)) list.forEach(x => { m[x.replace(/[\s-]/g,"")] = mk; }); return m; })();
+function withMake(label){
+  const v = norm(label).toUpperCase().replace(/\s+/g, " ");
+  if (!v) return v;
+  const words = v.split(" ");
+  if (MAKE_ALIAS[words[0]]) return [MAKE_ALIAS[words[0]]].concat(words.slice(1)).join(" ");
+  if (MAKE_NAMES.includes(words[0]) || MAKE_NAMES.includes(words.slice(0,2).join(" "))) return v;
+  for (let n = Math.min(words.length, 3); n >= 1; n--){
+    for (let i = 0; i + n <= words.length; i++){
+      const mk = MODEL_TO_MAKE[words.slice(i, i+n).join("").replace(/-/g,"")];
+      if (mk) return mk + " " + v;
+    }
+  }
+  return v;
+}
+function vehicleHint(){
+  const inp = $("#dVehicle"), h = $("#vehHint"); if (!inp || !h) return;
+  const v = norm(inp.value), full = withMake(v);
+  h.innerHTML = v && full !== v.toUpperCase().replace(/\s+/g," ") ? `Will save as <b>${esc(full)}</b>` : "";
+}
 function vehChips(vehicles, current){
-  return vehicles.map(v => `<button type="button" class="vchip ${v.label.toLowerCase() === norm(current).toLowerCase() ? "on" : ""}" data-veh="${esc(v.label)}">${esc(v.label)}</button>`).join("");
+  return vehicles.map(v => `<button type="button" class="vchip ${v.label.toUpperCase() === withMake(current) ? "on" : ""}" data-veh="${esc(v.label)}">${esc(v.label)}</button>`).join("");
 }
 function vehOptions(vehicles){ return vehicles.map(v=>`<option value="${esc(v.label)}">`).join(""); }
 function custHintHTML(name){
@@ -1019,7 +1063,7 @@ function draftPayload(){
     .filter(l => l.part_no || l.description);
   const p = {
     status: d.status, type: d.type || "customer", priority: d.priority,
-    customer_name: norm(d.customer).toUpperCase(), vehicle_label: norm(d.vehicle).toUpperCase(),
+    customer_name: norm(d.customer).toUpperCase(), vehicle_label: withMake(d.vehicle),
     eta_date: d.etaDate || "", tracking: norm(d.tracking), comments: d.comments.replace(/\s+$/,""),
     invoiced: !!d.invoiced, paid: !!d.paid,
     lines: lines.map(({id, qty, part_no, description, supplier, status}) => ({id, qty, part_no, description, supplier, status}))
@@ -1209,6 +1253,7 @@ document.addEventListener("change", ev => {
   if (t.matches("[data-status-for]")) patch(t.dataset.statusFor, {status: t.value}, `Moved to ${t.value}`);
   if (t.id === "fPriority"){ state.priority = t.value; render(); }
   if (t.id === "fSupplier"){ state.supplier = t.value; render(); }
+  if (state.editing && t.id === "dVehicle"){ t.value = withMake(t.value); vehicleHint(); }
   if (state.editing && (t.id === "dCustomer" || t.id === "dVehicle")) refreshCustomerBits();
 });
 let qT;
@@ -1223,6 +1268,7 @@ document.addEventListener("input", ev => {
   if (t.id === "q"){ clearTimeout(qT); qT = setTimeout(() => { state.q = t.value.trim(); render(); }, 120); }
   if (t.id === "pFilter"){ state.panelFilter = t.value.trim(); drawPanelRows(); }
   if (state.editing && (t.id === "dCustomer" || t.id === "dVehicle")) refreshCustomerBits();
+  if (state.editing && t.id === "dVehicle") vehicleHint();
   if (state.editing && t.matches(".lsup")){ const v = norm(t.value); const isNew = !!v && !findSupplier(v); t.classList.toggle("newsup", isNew); t.title = isNew ? "New supplier — added to your list when you save" : ""; }
 });
 document.addEventListener("keydown", ev => {
