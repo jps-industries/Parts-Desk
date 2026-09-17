@@ -798,6 +798,7 @@ function syncLabel(){
 async function load(){
   if (!mcp || loading) return;
   loading = true;
+  loadModels();
   try {
     let st;
     try { st = await rpc("parts_app_state"); }
@@ -986,9 +987,26 @@ const VEHICLE_MAKES = {
   HYUNDAI: ["I30N","I20N","VELOSTER"],
   CHEVROLET: ["CAMARO","CORVETTE","SILVERADO"]
 };
-const MAKE_NAMES = Object.keys(VEHICLE_MAKES).concat(["TOYOTA","NISSAN","MERCEDES","PORSCHE","DODGE","RAM","JEEP","KIA","ALFA","LAND ROVER","RANGE ROVER","VOLVO","PEUGEOT","RENAULT","DAIHATSU"]);
-const MAKE_ALIAS = {VW:"VOLKSWAGEN", CHEVY:"CHEVROLET", MITSI:"MITSUBISHI", MITSU:"MITSUBISHI", DATSUN:"NISSAN", MERC:"MERCEDES"};
+let MAKE_NAMES = Object.keys(VEHICLE_MAKES).concat(["TOYOTA","NISSAN","MERCEDES","PORSCHE","DODGE","RAM","JEEP","KIA","DATSUN","MERCEDES-BENZ","ALFA ROMEO","LAND ROVER","RANGE ROVER","VOLVO","PEUGEOT","RENAULT","DAIHATSU"]);
+let MAKE_ALIAS = {VW:"VOLKSWAGEN", CHEVY:"CHEVROLET", MITSI:"MITSUBISHI", MITSU:"MITSUBISHI", MERC:"MERCEDES-BENZ", MERCEDES:"MERCEDES-BENZ", BENZ:"MERCEDES-BENZ", ALFA:"ALFA ROMEO"};
 const MODEL_TO_MAKE = (() => { const m = {}; for (const [mk, list] of Object.entries(VEHICLE_MAKES)) list.forEach(x => { m[x.replace(/[\s-]/g,"")] = mk; }); return m; })();
+let modelsAt = 0, modelsBusy = false;
+function applyModels(m){
+  if (typeof m === "string") m = JSON.parse(m);
+  if (!m || typeof m !== "object") return;
+  if (m.models && typeof m.models === "object") Object.assign(MODEL_TO_MAKE, m.models);
+  if (Array.isArray(m.makes) && m.makes.length) MAKE_NAMES = Array.from(new Set(m.makes.concat(["RANGE ROVER"])));
+  if (m.aliases && typeof m.aliases === "object") MAKE_ALIAS = m.aliases;
+  modelsAt = Date.now();
+  vehicleHint();
+}
+async function loadModels(){
+  if (!mcp || modelsBusy || Date.now() - modelsAt < 300000) return;
+  modelsBusy = true;
+  try { let m = await rpc("parts_app_vehicle_models"); applyModels(m); }
+  catch(e){ console.warn("vehicle models", e); modelsAt = Date.now() - 240000; }
+  finally { modelsBusy = false; }
+}
 function withMake(label){
   const v = norm(label).toUpperCase().replace(/\s+/g, " ");
   if (!v) return v;
